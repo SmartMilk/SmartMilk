@@ -1,3 +1,10 @@
+/*
+  A draft of the window.cpp code for the Qt plot. 
+  In here you'll find the room temperature (Tr) and fridge temperature (Tf) thresholds
+  being declared and called upon by setThreshold() classes nearer the bottom. This
+  is for when the user clicks the degC or degF buttons to change the threshold values.
+*/
+
 
 #include "window.h"
 #include <ctime>
