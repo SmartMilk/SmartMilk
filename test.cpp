@@ -1,3 +1,6 @@
+// Old file for testing purposes, ignore this 
+
+
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>
