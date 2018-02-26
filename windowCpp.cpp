@@ -23,13 +23,13 @@ Window::Window() : Tf(4), Tr(18)
 		y2Data[index] = Tr; // high threshold is room temp (red line)
 	}
 
-	//Initialize curves
+	// Initialize curves
 	curve  = new QwtPlotCurve;
-	curve  -> setPen(QPen(Qt::green,2));
+	curve  -> setPen(QPen(Qt::green,2)); // curve for the milk temperature plotted in real-time (green)
 	curve1 = new QwtPlotCurve;
-	curve1 -> setPen(QPen(Qt::red,2));
+	curve1 -> setPen(QPen(Qt::red,2)); // line for the room temperature (red)
 	curve2 = new QwtPlotCurve;
-	curve2 -> setPen(QPen(Qt::blue,2));
+	curve2 -> setPen(QPen(Qt::blue,2)); // line for the fridge temperature (blue)
 	
 	/* --------------------
 	Initialise plots, buttons, labels and progressbar. For our application, we want:
@@ -49,20 +49,20 @@ Window::Window() : Tf(4), Tr(18)
 	Label1  = new QLabel(this);
 
 	//Connect buttons to their functions    
-  connect( fahrButton, SIGNAL(clicked()), SLOT(setLowerFahrThreshold()) );
+        connect( fahrButton, SIGNAL(clicked()), SLOT(setLowerFahrThreshold()) );
 	connect( celsButton, SIGNAL(clicked()), SLOT(setLowerCelsThreshold()) );
 
 	connect( fahrButton, SIGNAL(clicked()), SLOT(setHigherFahrThreshold()) );
 	connect( celsButton, SIGNAL(clicked()), SLOT(setHigherCelsThreshold()) );
 
 	// make a plot curve from the data and attach it to the plot
-	curve->setSamples(xData, yData, plotDataSize);
-	curve1->setSamples(xData,y1Data,plotDataSize);
-	curve2->setSamples(xData,y2Data,plotDataSize);
+	curve->setSamples(xData, yData, plotDataSize); // milk temperature Tm
+	curve1->setSamples(xData,y1Data,plotDataSize); // fridge temperature Tf
+	curve2->setSamples(xData,y2Data,plotDataSize); // room temperature Tr
   
 	//attach curves to plot
-	curve->attach(plot);
-  curve1->attach(plot);
+	curve->attach(plot);  
+	curve1->attach(plot);
 	curve2->attach(plot);	
 
 	//Label axis 
@@ -94,11 +94,13 @@ void Window::timerEvent( QTimerEvent * ) {
   wiringPiSetup ();
   pinMode (1, OUTPUT);
   
-  //call getData() function to get data points from temp sensor
+  //call getTemp() function to get data points from temp sensor in milkTempReader.h
   double temp = getTemp();
   double Tm = temp / 1000;
-  
-  if (Tm <= Tf) // if milk temp <= fridge temp (ie in fridge) NEED TO FIGURE OUT HOW TO SWITCH Tf BETWEEN DEGF AND DEGC
+	
+  // need to add a few lines to converyt Tm into degC/degF upon button click as well
+	
+  if (Tm <= Tf) // if milk temp <= fridge temp (ie in fridge) 
     {
       // display this message when the milk is still in the fridge
       Label1->setText("Milk is in the fridge");
@@ -123,7 +125,7 @@ void Window::timerEvent( QTimerEvent * ) {
     //start another timer for the next message (ie when t = 120)
     }
 
-  else if (timeActual = 120)
+  else if (timer2 = 120)
     {
     // 
     // display this message when the milk left out for longer than two hours
@@ -146,13 +148,13 @@ void Window::timerEvent( QTimerEvent * ) {
 	y2Data[plotDataSize-1] = Tr;
 	curve2->setSamples(xData, y2Data, plotDataSize);
 	
-	plot->setAxisTitle(QwtPlot::xBottom, "Time (x10 ms)");
-    	plot->setAxisTitle(QwtPlot::yLeft, "Dryness (%)");
+	plot->setAxisTitle(QwtPlot::xBottom, "Time (minutes)");
+    	plot->setAxisTitle(QwtPlot::yLeft, "Milk Temperature");
 	plot->replot();
 
 }
 
-//functions defining the 4 (2x2) thresholds
+//functions defining the 4 thresholds
 
 double Window::setLowerFahrThreshold()
 {
@@ -168,7 +170,7 @@ double Window::setHigherFahrThreshold()
 
 int Window::setLowerCelsThreshold()
 {
-  Tf = 4; // fridge temp is celsius
+  Tf = 4; // fridge temp in celsius
   return Tf;
 }
 
