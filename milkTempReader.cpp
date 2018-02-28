@@ -25,7 +25,7 @@ void tempReader::setPath() {
   {
     while ((dirent = readdir (dir)))
       // 1-wire devices are links beginning with 28-
-      if (dirent->d_type == DT_LNK && strstr(dirent->d_name, "28-") != NULL) 
+      if (dirent->d_type == DT_LNK && strstr(dirent->d_name, "28-0317606edbff") != NULL) 
       { 
         strcpy(dev, dirent->d_name);
         printf("\nDevice: %s\n", dev);
