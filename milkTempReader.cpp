@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "milkTempReader.h"
-#include "CppTimer.h" // include this to call upon the timerEvent() function for different events?? 
+//#include "CppTimer.h" // include this to call upon the timerEvent() function for different events?? 
 
 using namespace std;
 
