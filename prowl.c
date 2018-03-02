@@ -9,7 +9,7 @@
     */
 #include "prowl.h"
 #include "milkTempReader.h"    // include this header to read in the times from milkTempReader.cpp
-#include "CppTimer.h"
+//#include "CppTimer.h"
     
     static int prowl_get_response_code(char* response);
     static prowl_connection* prowl_ssl_connect();
