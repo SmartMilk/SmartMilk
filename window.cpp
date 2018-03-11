@@ -86,7 +86,7 @@ Window::Window()
 
 	plot->replot();
 	plot->show();
-	plot->setStyleSheet("QWidget {border-image: url(./pic/milkhasgonebad.png) }");
+	plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
 
 	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("time"));
 	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("temperature C"));
@@ -102,7 +102,7 @@ void Window::createTempScale()
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
 	//Group background
-	TempScale->setStyleSheet("QGroupBox {border-image: url(./pic/Smart.png)} ");
+	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} ");
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QPushButton *Button1 = new QPushButton(tr("deg\260C"));
@@ -118,15 +118,15 @@ void Window::createTempScale()
 	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
 
 	//Buttons Design
-	Button1->setStyleSheet("QWidget {border-image: url(./pic/orange.png) }");
-	Button2->setStyleSheet("QWidget {border-image: url(./pic/pink.png) }");
+	Button1->setStyleSheet("QWidget {border-image: url(./pics/orange.png) }");
+	Button2->setStyleSheet("QWidget {border-image: url(./pics/pink.png) }");
 }
 
 
 void Window::createCountdownBox()
 {
 	CountdownBox = new QGroupBox(tr("Countdown to message"));
-	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pic/Milk.png)} "); //Background
+	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Background
 	QVBoxLayout *layout = new QVBoxLayout;
 
 	//This label takes the countdown to sending a message, right now only temperature instead of time
