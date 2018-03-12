@@ -148,7 +148,10 @@ void Window::createTempCountdownVertSplit()
 void Window::timerEvent(QTimerEvent *)
 {
 	double a;
-	double inVal = test(&a);			//inVal takes the temperature's value from the test function
+	double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
+	double counter = 100.0; //placeholder for countdown
+
+	QString s = QString::number(counter);
 
 	//Leaving this in as an option to set up an LED
 	//wiringPiSetup();			//Set up WiringPI library
@@ -166,22 +169,22 @@ void Window::timerEvent(QTimerEvent *)
 }
 
 //Button1 function - Display in deg. C
-void Window::setDegC()
-{
+//void Window::setDegC()
+//{
 // Code here
-}
+//}
 
 //Button2 function - Display in deg. F
-void Window::setDegF()
-{
+//void Window::setDegF()
+//{
 // Code here
-}
+//}
 
 //Real time timer display function
-void Window::countdown()
-{
+//void Window::countdown()
+//{
 // Code here
-}
+//}
 
 
 
