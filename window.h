@@ -1,77 +1,67 @@
+//This file defines all the classes and objects used in window.cpp (or temp_read_file.cpp)
+
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QLabel>
-#include <QPushButton>
-#include <QPen>
+#include <qwt/qwt_thermo.h>
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_plot_curve.h>
 #include <QBoxLayout>
-#include "milkTempReader.h"
+#include <QLabel>
+#include <QGroupBox>
+#include <QPushButton>
+#include <qwidget.h>
+#include <qfont.h>
 
-/* The tempRead.h file contains the class definitions, and int & char variables to be used in the window.cpp script. 
-   It should also contain the 
-*/
+class Window : public QWidget
+{
+	// must include the Q_OBJECT macro for for the Qt signals/slots framework to work with this class
+	Q_OBJECT
 
-// class definition 'Window'
-class Window : public QWidget {
-  
-  // must include the Q_OBJECT macro for for the Qt signals/slots framework to work with this class
-  Q_OBJECT
+public:
+	Window(); // default constructor - called when a Window is declared without arguments
 
- public:
-  Window(); // default constructor - called when a Window is declared without arguments
+	void timerEvent(QTimerEvent *);
 
-  ~Window();
+	// internal variables for the window class
+	private slots:
+//	void setDegC();  //Set the temperature to degrees C
+//	void setDegF();  //Set the temperature to degrees F
+	//void countdown(): //Countdown to Prowl Message send
 
-  void timerEvent( QTimerEvent * );
 
-  public slots: // for the changes to the plot upon pressing a specific button
-    /*
-     * Thresholds for the fridge temperature (Tf) and room temperature (Tr). 
-     * These functions will be implemented and call upon the thresholds 
-     * defined below when a button is pressed.
-     */
-    double setLowerFahrThreshold(); 
-    double setHigherFahrThreshold(); 
-    int setLowerCelsThreshold(); 
-    int setHigherCelsThreshold();
-    
-    // Internal variables for the window class
- private:
-   
-   // plots: lower threshold; milk temp in real-time; upper threshold
-    QwtPlot      *plot;
-    QwtPlotCurve *curve;  
-    QwtPlotCurve *curve1;
-    QwtPlotCurve *curve2;
+private:
+	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
 
-    // buttons: for converting the temperature from degC to degF
-    QPushButton *celsButton; // degC
-    QPushButton *fahrButton; // degF
-    
-    // label: for displaying the messages on the milks condition over time
-    QLabel       *Label1; 
+	void createTempScale();  //This function creates celsius and farenheit push button GUIs
+	void createCountdownBox();  //Creates a GUI slot for a countdown timer for sending Prowl Messages
+	void createTempCountdownVertSplit();   //Function splits the tempscale and countdown boxes vertically
+	//Declaring pointers
 
-    // layout elements from Qt itself http://qt-project.org/doc/qt-4.8/classes.html
-    QVBoxLayout  *vLayout;  // vertical layout
-    QHBoxLayout  *hLayout;  // horizontal layout
+	QwtThermo    *thermo;
+	QwtPlot      *plot;
+	QwtPlotCurve *curve;
+	QLabel       *reading;
+	QLabel       *space;
+	QLabel       *manual;
+	QPushButton  *heaterLed;
+	QPushButton  *heaterOff;
 
-    static const int plotDataSize = 100;
+	//Qt Groups. Each group is created inside of its own function
+	QGroupBox *TempScale;
+	QGroupBox *CountdownBox;
+	QGroupBox *TempCountdownVertSplit;
 
-    // data arrays for the plot
-    double xData[plotDataSize];
-    double yData[plotDataSize];
-    double y1Data[plotDataSize];
-    double y2Data[plotDataSize];
-    
-    //Thresholds for the Qt plot
-    double fahrThresholdLow;
-    double fahrThresholdHigh;
-    int celsThresholdLow;
-    int celsThresholdHigh;
+	//The main Layout which will contain all the GUI elements
+	QHBoxLayout  *mainLayout;  // horizontal layout
 
+	static const int plotDataSize = 60;
+
+	// data arrays for the plot
+	double xData[plotDataSize];
+	double yData[plotDataSize];
+
+	bool flag;
 };
 
 #endif // WINDOW_H
-

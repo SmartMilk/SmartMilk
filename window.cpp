@@ -1,174 +1,196 @@
-
 #include "window.h"
-#include <ctime>
-#include <cmath>
-#include "wiringPi.h"
-#include "milkTempReader.h"
+#include <QtGui>
+#include <QFont>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+//#include <wiringPi.h>
+#define BUFSIZE 128
+//#define PIN RPI_GPIO_P1_12
 
-Window::Window() : Tf(4), Tr(18)
+//temperature reading function
+double tempreadbuster(double *a)
 {
-	// set up the initial plot data
-	for( int index=0; index<plotDataSize; ++index )
-	{
-		xData[index]  = index;
-		yData[index]  = 10;
-		y1Data[index] = Tf; // low threshold is fridge temp (blue line)
-		y2Data[index] = Tr; // high threshold is room temp (red line)
+	//First define variables:
+	double tempC;            //Here is stored the temperature as a double
+	int    openFile;	//It is needed to open the sensor
+	int    reader;
+	char   buffer[BUFSIZE];
+	char   stringTemp[5];   //Temperature is stored in a String
+
+	//When using your own temperature sensor, change the serial number from the one below:
+	openFile = open("/sys/bus/w1/devices/28-0317606edbff/w1_slave", O_RDONLY); 
+	if (-1 == openFile) {
+		perror("could not identify device");
+		return 1;
 	}
 
-	//Initialize curves
-	curve  = new QwtPlotCurve;
-	curve  -> setPen(QPen(Qt::green,2));
-	curve1 = new QwtPlotCurve;
-	curve1 -> setPen(QPen(Qt::red,2));
-	curve2 = new QwtPlotCurve;
-	curve2 -> setPen(QPen(Qt::blue,2));
-	
-	/* --------------------
-	Initialise plots, buttons, labels and progressbar. For our application, we want:
-	- a label for the message box
-	  -> "Milk in fridge"" (while Tm <= Tf)
-	  -> "Milk out of fridge (while Tm > Tf)
-	  -> "Milk at room temperature" (when Tm = Tr)
-	  -> "Milk now unsafe to drink" (if Tm = Tr for t = 120mins)
-	- a button for switching to degC 
-	- a button for switching to degF
-	*/ --------------------
-	
-	// Call upon internal private variables from windowHeader for plotting, setting labels and buttons
-	plot    = new QwtPlot;
-	celsButton = new QPushButton("Degrees Celsius");
-	FahrButton = new QPushButton("Degrees Fahrenheit");
-	Label1  = new QLabel(this);
+	//Infinite loop which breaks after reading the sensor or failing in accessing it
+	while (1) {
+		reader = read(openFile, buffer, BUFSIZE);
+		if (0 == reader) {
+			break;
+		}
+		if (-1 == reader) {
+			if (errno == EINTR) {
+				continue;
+			}
+			perror("read()");
+			close(openFile);
+			return 1;
+		}
+	}
 
-	//Connect buttons to their functions    
-  connect( fahrButton, SIGNAL(clicked()), SLOT(setLowerFahrThreshold()) );
-	connect( celsButton, SIGNAL(clicked()), SLOT(setLowerCelsThreshold()) );
+	//Storing the temperature in a String
+	for (std::size_t i = 0; i<sizeof(buffer); i++) {
+		if (buffer[i] == 116) {
+			for (std::size_t j = 0; j<sizeof(stringTemp); j++) {
+				stringTemp[j] = buffer[i + 2 + j];
+			}
+		}
+	}
 
-	connect( fahrButton, SIGNAL(clicked()), SLOT(setHigherFahrThreshold()) );
-	connect( celsButton, SIGNAL(clicked()), SLOT(setHigherCelsThreshold()) );
 
-	// make a plot curve from the data and attach it to the plot
+	tempC = (double)atoi(stringTemp) / 1000; //Conversion from char to double
+	*a = tempC;                              //Pointer for using temperature in other function
+	double result = *a;
+	return result;
+} //tempreadbuster function ends here
+
+Window::Window()
+// Function calls upon the window header and continues to define elements
+{
+	//These functions creates all the GUI elements except the main Layout
+
+	createTempScale();
+	createCountdownBox();
+	createTempCountdownVertSplit();
+
+	//Set up the initial plot data
+	for (int index = 0; index<plotDataSize; ++index)
+	{
+		xData[index] = index;
+		yData[index] = 20;
+	}
+
+	curve = new QwtPlotCurve;
+	plot = new QwtPlot;
+	//Make a plot curve from the data and attach it to the plot
 	curve->setSamples(xData, yData, plotDataSize);
-	curve1->setSamples(xData,y1Data,plotDataSize);
-	curve2->setSamples(xData,y2Data,plotDataSize);
-  
-	//attach curves to plot
 	curve->attach(plot);
-  curve1->attach(plot);
-	curve2->attach(plot);	
 
-	//Label axis 
-	plot->setAxisTitle(QwtPlot::xBottom, "Time (minutes)");
-	plot->setAxisTitle(QwtPlot::yLeft, "Milk Temperature");
 	plot->replot();
 	plot->show();
-	
-	// set up the vertical and horizontal layout 
-	vLayout = new QVBoxLayout;
-	vLayout->addWidget(Label1); // message box
-	
-	vLayout->addWidget(celsButton); // degC button
-	vLayout->addWidget(fahrButton); // degF button
-	
-	hLayout = new QHBoxLayout;
-	hLayout->addLayout(vLayout);
-	hLayout->addWidget(plot);
-	setLayout(hLayout);
+	plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
 
+	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("time"));
+	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("temperature C"));
+
+	//Set up the main layout
+	mainLayout = new QHBoxLayout;	     //horizontal layout
+	mainLayout->addWidget(plot);         //set up the plot as first slot
+	mainLayout->addWidget(TempCountdownVertSplit);   //set up the tempscale + countdown timer as second slot
+	setLayout(mainLayout);
 }
 
-Window::~Window() {
+void Window::createTempScale()
+{
+	TempScale = new QGroupBox(tr("Temp. Scale"));
+	//Group background
+	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} ");
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	QPushButton *Button1 = new QPushButton(tr("deg\260C"));
+	QPushButton *Button2 = new QPushButton(tr("deg\260F"));
+
+	//Adding components to the layout
+	layout->addWidget(Button1);
+	layout->addWidget(Button2);
+	TempScale->setLayout(layout);
+
+	//Functionality of Buttons
+	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
+	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
+
+	//Buttons Design
+	Button1->setStyleSheet("QWidget {border-image: url(./pics/orange.png) }");
+	Button2->setStyleSheet("QWidget {border-image: url(./pics/pink.png) }");
 }
 
-void Window::timerEvent( QTimerEvent * ) {
-  
-  //initialize output pin
-  wiringPiSetup ();
-  pinMode (1, OUTPUT);
-  
-  //call getData() function to get data points from temp sensor
-  double temp = getTemp();
-  double Tm = temp / 1000;
-  
-  if (Tm <= Tf) // if milk temp <= fridge temp (ie in fridge) NEED TO FIGURE OUT HOW TO SWITCH Tf BETWEEN DEGF AND DEGC
-    {
-      // display this message when the milk is still in the fridge
-      Label1->setText("Milk is in the fridge");
-    }
-  
-  else if (Tm > Tf) // if milk temp > fridge temp
-    {
-    
-    // start timer when milk temperature begins to rise. HOW TO START A TIMER WITHIN QT???
-    
-    
-    // code for starting timer -- when t = 30mins send message to users phone!
-    // display this message when the milk is still in the fridge
-      Label1->setText("Milk is out of the fridge");
-    }
-  
-  else if (Tm = Tr) // if milk temp = room temp
-    {
-    // display this message when the milk reaches room temperature (bacteria now thrives)
-    Label1->setText("Warning: milk is at room temperature!");
-    
-    //start another timer for the next message (ie when t = 120)
-    }
 
-  else if (timeActual = 120)
-    {
-    // 
-    // display this message when the milk left out for longer than two hours
-    Label1->setText("Highly recommend that you don't drink this milk now");
-    // fire off a notification to the perl script to then send off to the app
-    // SOME CODE
-    }
- 
-      
-	// add the new input to the plot
-	memmove( yData, yData+1, (plotDataSize-1) * sizeof(double) );
-	yData[plotDataSize-1] = Tm;
+void Window::createCountdownBox()
+{
+	CountdownBox = new QGroupBox(tr("Countdown to message"));
+	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Background
+	QVBoxLayout *layout = new QVBoxLayout;
+
+	//This label takes the countdown to sending a message, right now only temperature instead of time
+	reading = new QLabel;
+	layout->addWidget(reading);
+
+	CountdownBox->setLayout(layout);
+}
+
+void Window::createTempCountdownVertSplit()
+{
+	TempCountdownVertSplit = new QGroupBox(tr("Smart Milk Monitor"));
+	QVBoxLayout *layout = new QVBoxLayout;		//Vertical Box Layout
+	layout->addWidget(TempScale);	//First slot of the Box
+	layout->addWidget(CountdownBox);		//Second slot of the Box
+	TempCountdownVertSplit->setLayout(layout);
+}
+
+void Window::timerEvent(QTimerEvent *)
+{
+	double a;
+	double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
+	double counter = 100.0; //placeholder for countdown
+
+	QString s = QString::number(counter);
+
+	//Leaving this in as an option to set up an LED
+	//wiringPiSetup();			//Set up WiringPI library
+	//pinMode(1, OUTPUT);			//Set up GPIO 18 as OUTPUT
+
+								//Add new reading to the plot
+	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
+	yData[plotDataSize - 1] = inVal;
+
+	reading->setText(s);			//Display temp (currently this would just output temp)
 	curve->setSamples(xData, yData, plotDataSize);
-	
-	memmove( y1Data, y1Data+1, (plotDataSize-1) * sizeof(double) );
-	y1Data[plotDataSize-1] = Tf;
-	curve1->setSamples(xData, y1Data, plotDataSize);
-       
-	memmove( y2Data, y2Data+1, (plotDataSize-1) * sizeof(double) );
-	y2Data[plotDataSize-1] = Tr;
-	curve2->setSamples(xData, y2Data, plotDataSize);
-	
-	plot->setAxisTitle(QwtPlot::xBottom, "Time (x10 ms)");
-    	plot->setAxisTitle(QwtPlot::yLeft, "Dryness (%)");
 	plot->replot();
+	printf("%.3f C\n", inVal);		//Print current temperature in terminal
 
 }
 
-//functions defining the 4 (2x2) thresholds
+//Button1 function - Display in deg. C
+//void Window::setDegC()
+//{
+// Code here
+//}
 
-double Window::setLowerFahrThreshold()
-{
-  Tf = 39.2; // the fridge temperature in fahrenheit
-  return Tf;
-}
+//Button2 function - Display in deg. F
+//void Window::setDegF()
+//{
+// Code here
+//}
 
-double Window::setHigherFahrThreshold()
-{
- Tr = 64.4; // the room temperature in fahrenheit
-  return Tr;
-}
-
-int Window::setLowerCelsThreshold()
-{
-  Tf = 4; // fridge temp is celsius
-  return Tf;
-}
-
-int Window::setHigherCelsThreshold()
-{
-  Tr = 18; // room temp in celsius
-  return Tr;
-}
+//Real time timer display function
+//void Window::countdown()
+//{
+// Code here
+//}
 
 
+
+// Function to turn an LED ON when milk temp is high and timer has passed enough seconds
+//if [condition 1] && [condition 2] {
+//	digitalWrite(1, 1); // turns on LED
+//else
+//	digitalWrite(1, 0); // turns off LED
+//}
