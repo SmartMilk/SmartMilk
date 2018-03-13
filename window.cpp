@@ -178,7 +178,6 @@ void Window::startCountdown();
 {
 	double a;
 	double inVal = tempreadbuster(&a); //intake values for temp.
-	time_seconds = 180; //placeholder starting value for countdown (3 minutes)
 	s = QString::number(time_seconds);
 	reading->setText(s);			//Displays countdown on QT
 	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
