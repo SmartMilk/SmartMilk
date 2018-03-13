@@ -67,7 +67,7 @@ private:
 
 	// countdown variables:
 	static const double critTemp = 23.0; //temperature threshold to activate countdown
-	int time_seconds;
+	int time_seconds = 180; //countdown starting value, is currently placeholder 3 minutes
 	bool running = false;
 	Qstring s;
 
