@@ -101,7 +101,7 @@ Window::Window()
 
 	//Initialising timer
 	QTimer       *timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	connect(timer, SIGNAL(timeout()), this, SLOT(decrementCounter()));
 	timer->setInterval(1000);
 	timer->start();
 }
