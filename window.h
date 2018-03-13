@@ -1,5 +1,6 @@
-//This file defines all the classes and objects used in window.cpp (or temp_read_file.cpp)
+//This file defines all the classes and objects used in window.cpp 
 
+//for timer, trying to merge with timer-shutdown ( https://github.com/raymon1/timer-shutdown )
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -12,8 +13,10 @@
 #include <QPushButton>
 #include <qwidget.h>
 #include <qfont.h>
+#include <QMainWindow>
+#include <QTimer>
 
-class Window : public QWidget
+class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 {
 	// must include the Q_OBJECT macro for for the Qt signals/slots framework to work with this class
 	Q_OBJECT
@@ -23,11 +26,11 @@ public:
 
 	void timerEvent(QTimerEvent *);
 
-	// internal variables for the window class
-	private slots:
+ private slots:
+	void startCountdown();
+	void decrementCountdown();
 //	void setDegC();  //Set the temperature to degrees C
 //	void setDegF();  //Set the temperature to degrees F
-	//void countdown(): //Countdown to Prowl Message send
 
 
 private:
@@ -36,6 +39,7 @@ private:
 	void createTempScale();  //This function creates celsius and farenheit push button GUIs
 	void createCountdownBox();  //Creates a GUI slot for a countdown timer for sending Prowl Messages
 	void createTempCountdownVertSplit();   //Function splits the tempscale and countdown boxes vertically
+
 	//Declaring pointers
 
 	QwtThermo    *thermo;
@@ -60,6 +64,12 @@ private:
 	// data arrays for the plot
 	double xData[plotDataSize];
 	double yData[plotDataSize];
+
+	// countdown variables:
+	static const double critTemp = 23.0; //temperature threshold to activate countdown
+	int time_seconds;
+	bool running = false;
+	Qstring s;
 
 	bool flag;
 };

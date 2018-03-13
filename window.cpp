@@ -9,8 +9,10 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <thread>
+
 //#include <wiringPi.h>
-#define BUFSIZE 128
+#define BUFSIZE 128 //experiment with different buffer sizes
 //#define PIN RPI_GPIO_P1_12
 
 //temperature reading function
@@ -96,13 +98,19 @@ Window::Window()
 	mainLayout->addWidget(plot);         //set up the plot as first slot
 	mainLayout->addWidget(TempCountdownVertSplit);   //set up the tempscale + countdown timer as second slot
 	setLayout(mainLayout);
+
+	//Initialising timer
+	QTimer       *timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	timer->setInterval(1000);
+	timer->start();
 }
 
 void Window::createTempScale()
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
 	//Group background
-	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} "); //Placeholder image
+	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} "); //placeholder background
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QPushButton *Button1 = new QPushButton(tr("Celsius"));
@@ -126,7 +134,7 @@ void Window::createTempScale()
 void Window::createCountdownBox()
 {
 	CountdownBox = new QGroupBox(tr("Countdown to message"));
-	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder background
+	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
 	QVBoxLayout *layout = new QVBoxLayout;
 
 	//This label takes the countdown to sending a message, right now only temperature instead of time
@@ -149,9 +157,7 @@ void Window::timerEvent(QTimerEvent *)
 {
 	double a;
 	double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
-	double counter = 100.0; //placeholder for countdown
-
-	QString s = QString::number(counter);
+	
 
 	//Leaving this in as an option to set up an LED
 	//wiringPiSetup();			//Set up WiringPI library
@@ -161,11 +167,53 @@ void Window::timerEvent(QTimerEvent *)
 	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
 	yData[plotDataSize - 1] = inVal;
 
-	reading->setText(s);			//Display temp (currently this would just output temp)
+	
 	curve->setSamples(xData, yData, plotDataSize);
 	plot->replot();
 	printf("%.3f C\n", inVal);		//Print current temperature in terminal
 
+}
+
+void Window::startCountdown();
+{
+	double a;
+	double inVal = tempreadbuster(&a); //intake values for temp.
+	time_seconds = 180; //placeholder starting value for countdown (3 minutes)
+	s = QString::number(time_seconds);
+	reading->setText(s);			//Displays countdown on QT
+	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
+
+	//testing countdown function: for t > 23C (holding sensor in hand), 
+	if (inval > critTemp) {
+		running = true;
+	}
+	else {
+		time_seconds = 180; //placeholder starting value for countdown (3 minutes)
+		s = QString::number(time_seconds);
+		reading->setText(s);			//Displays countdown on QT
+	}
+}
+
+void Window::decrementCountdown();
+{
+	if (time_seconds >= 0 && running = true)
+	{
+		s = QString::number(time_seconds);
+		reading->setText(s);			//Displays countdown on QT
+		if (time_seconds == 120 && running = true)
+		{
+			std::cout << "Message 1 sent" << std::end1; //replace action with executing prowl script
+		}
+		else if (time_seconds == 60 && running = true)
+		{
+			std::cout << "Message 2 sent" << std:end1;
+		}
+		else if (time_seconds == 0 && running = true)
+		{
+			std::cout << "Message 3 sent" << std::end1;
+		}
+		time_seconds--;
+	}
 }
 
 //Button1 function - Display in deg. C
@@ -179,14 +227,6 @@ void Window::timerEvent(QTimerEvent *)
 //{
 // Code here
 //}
-
-//Real time timer display function
-//void Window::countdown()
-//{
-// Code here
-//}
-
-
 
 // Function to turn an LED ON when milk temp is high and timer has passed enough seconds
 //if [condition 1] && [condition 2] {
