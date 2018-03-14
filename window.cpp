@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <thread>
+#include <iostream> //testing purposes only
 
 //#include <wiringPi.h>
 #define BUFSIZE 128 //experiment with different buffer sizes
@@ -98,18 +99,12 @@ Window::Window()
 	mainLayout->addWidget(plot);         //set up the plot as first slot
 	mainLayout->addWidget(TempCountdownVertSplit);   //set up the tempscale + countdown timer as second slot
 	setLayout(mainLayout);
-
-	//Initialising timer
-	QTimer       *timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(decrementCounter()));
-	timer->setInterval(1000);
-	timer->start();
 }
 
 void Window::createTempScale()
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
-	//Group background
+
 	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} "); //placeholder background
 
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -122,8 +117,8 @@ void Window::createTempScale()
 	TempScale->setLayout(layout);
 
 	//Functionality of Buttons
-	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
-	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
+//	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
+//	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
 
 	//Buttons Design
 	Button1->setStyleSheet("QWidget {border-image: url(./pics/orangepaint.png) }");
@@ -137,7 +132,13 @@ void Window::createCountdownBox()
 	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
 	QVBoxLayout *layout = new QVBoxLayout;
 
-	//This label takes the countdown to sending a message, right now only temperature instead of time
+	//This label takes the countdown to sending a message
+        //Initialising timer
+        QTimer       *timer = new QTimer;
+        connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
+        timer->setInterval(1000);
+        timer->start();
+
 	reading = new QLabel;
 	layout->addWidget(reading);
 
@@ -157,7 +158,6 @@ void Window::timerEvent(QTimerEvent *)
 {
 	double a;
 	double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
-	
 
 	//Leaving this in as an option to set up an LED
 	//wiringPiSetup();			//Set up WiringPI library
@@ -167,49 +167,50 @@ void Window::timerEvent(QTimerEvent *)
 	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
 	yData[plotDataSize - 1] = inVal;
 
-	
+
 	curve->setSamples(xData, yData, plotDataSize);
 	plot->replot();
 	printf("%.3f C\n", inVal);		//Print current temperature in terminal
 
 }
 
-void Window::startCountdown();
+void Window::startCountdown()
 {
+
 	double a;
 	double inVal = tempreadbuster(&a); //intake values for temp.
-	s = QString::number(time_seconds);
+	QString s = QString::number(time_seconds);
 	reading->setText(s);			//Displays countdown on QT
 	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
 
-	//testing countdown function: for t > 23C (holding sensor in hand), 
-	if (inval > critTemp) {
+	//testing countdown function: for t > 24C (holding sensor in hand),
+	if (inVal > critTemp)
+	{
 		running = true;
 	}
-	else {
-		time_seconds = 180; //placeholder starting value for countdown (3 minutes)
-		s = QString::number(time_seconds);
-		reading->setText(s);			//Displays countdown on QT
-	}
-}
-
-void Window::decrementCountdown();
-{
-	if (time_seconds >= 0 && running = true)
+	else
 	{
+		time_seconds = 180; //reset timer
 		s = QString::number(time_seconds);
+		reading->setText(s);
+		running = false;
+	}
+
+	if (time_seconds >= 0 && running)
+	{
+		QString s = QString::number(time_seconds);
 		reading->setText(s);			//Displays countdown on QT
-		if (time_seconds == 120 && running = true)
+		if (time_seconds == 120 && running)
 		{
-			std::cout << "Message 1 sent" << std::end1; //replace action with executing prowl script
+			std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
 		}
-		else if (time_seconds == 60 && running = true)
+		else if (time_seconds == 60 && running)
 		{
-			std::cout << "Message 2 sent" << std:end1;
+			std::cout << "Message 2 sent" << std::endl;
 		}
-		else if (time_seconds == 0 && running = true)
+		else if (time_seconds == 0 && running)
 		{
-			std::cout << "Message 3 sent" << std::end1;
+			std::cout << "Message 3 sent" << std::endl;
 		}
 		time_seconds--;
 	}

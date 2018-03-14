@@ -23,14 +23,17 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
+       // void decrementCountdown();
 
-	void timerEvent(QTimerEvent *);
+        const double critTemp = 24.0; //temperature threshold to activate countdown
+        int time_seconds = 180; //countdown starting value, is currently placeholder 3 minutes
+        bool running = false;
 
  private slots:
-	void startCountdown();
-	void decrementCountdown();
 //	void setDegC();  //Set the temperature to degrees C
 //	void setDegF();  //Set the temperature to degrees F
+        void timerEvent(QTimerEvent *);
+	void startCountdown();
 
 
 private:
@@ -66,10 +69,9 @@ private:
 	double yData[plotDataSize];
 
 	// countdown variables:
-	static const double critTemp = 24.0; //temperature threshold to activate countdown
-	int time_seconds = 180; //countdown starting value, is currently placeholder 3 minutes
-	bool running = false;
-	Qstring s;
+//	const double critTemp = 24.0; //temperature threshold to activate countdown
+//	int time_seconds = 180; //countdown starting value, is currently placeholder 3 minutes
+//	bool running = false;
 
 	bool flag;
 };
