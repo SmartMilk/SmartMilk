@@ -65,7 +65,7 @@ double tempreadbuster(double *a)
 	return result;
 } //tempreadbuster function ends here
 
-Window::Window()
+Window::Window() : Tf(25.0), Tr(28.0)
 // Function calls upon the window header and continues to define elements
 {
 	//These functions creates all the GUI elements except the main Layout
@@ -79,13 +79,26 @@ Window::Window()
 	{
 		xData[index] = index;
 		yData[index] = 20;
+		y1Data[index] = Tf; // fridge temp threshold
+		y2Data[index] = Tr; // room temp threshold
 	}
 
 	curve = new QwtPlotCurve;
+        curve->setPen(QPen(Qt::green,2));
+	curve1 = new QwtPlotCurve;
+        curve1->setPen(QPen(Qt::blue,2));
+	curve2 = new QwtPlotCurve;
+	curve2->setPen(QPen(Qt::red,2));
 	plot = new QwtPlot;
+
 	//Make a plot curve from the data and attach it to the plot
 	curve->setSamples(xData, yData, plotDataSize);
 	curve->attach(plot);
+	curve1->setSamples(xData, y1Data, plotDataSize);
+        curve1->attach(plot);
+	curve2->setSamples(xData, y2Data, plotDataSize);
+        curve2->attach(plot);
+
 
 	plot->replot();
 	plot->show();
@@ -179,42 +192,59 @@ void Window::startCountdown()
 
 	double a;
 	double inVal = tempreadbuster(&a); //intake values for temp.
-	QString s = QString::number(time_seconds);
+	QString s = QString::number(time_outoffridge);
+	QString k = QString::number(time_atroomtemp);
 	reading->setText(s);			//Displays countdown on QT
 	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
 
 	//testing countdown function: for t > 24C (holding sensor in hand),
-	if (inVal > critTemp)
+	if (inVal > fridgeTemp)
 	{
 		running = true;
 	}
 	else
 	{
-		time_seconds = 180; //reset timer
-		s = QString::number(time_seconds);
+		time_outoffridge = 10; //reset timer
+		s = QString::number(time_outoffridge);
 		reading->setText(s);
 		running = false;
+		running2 = false;
 	}
 
-	if (time_seconds >= 0 && running)
+	if (time_outoffridge >= 0 && running)
 	{
-		QString s = QString::number(time_seconds);
-		reading->setText(s);			//Displays countdown on QT
-		if (time_seconds == 120 && running)
+		QString s = QString::number(time_outoffridge);
+		reading->setText(s);
+		if (time_outoffridge ==0 && running)			//Displays countdown on QT
+			{
+				std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
+				//system("./some_script1.sh"); // run prowl1.pl through shell script from .cpp file
+				//temp will stay > fridgeTemp so this condition always true -> message 1 will be repeatedly sent
+				//running = false //use this to stop this timer from triggering message 1 
+			}
+	time_outoffridge--;
+	}
+	if (inVal >= roomTempLow && inVal <= roomTempHigh)
+	{
+		running2 = true;
+	}
+	if (time_atroomtemp >=0   && running2)
+	{
+	QString k = QString::number(time_atroomtemp);
+        reading->setText(k);                    //Displays countdown on
+		if (time_atroomtemp == 15 && running2)
 		{
-			std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
+                std::cout << "Message 2 sent" << std::endl; //replace action wi$
 		}
-		else if (time_seconds == 60 && running)
+		else if (time_atroomtemp == 0 && running2)
 		{
-			std::cout << "Message 2 sent" << std::endl;
+		 std::cout << "Message 3 sent" << std::endl; //replace action wi
 		}
-		else if (time_seconds == 0 && running)
-		{
-			std::cout << "Message 3 sent" << std::endl;
-		}
-		time_seconds--;
+	 time_atroomtemp--;
 	}
 }
+
+
 
 //Button1 function - Display in deg. C
 //void Window::setDegC()
