@@ -25,13 +25,13 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
 
-        const double fridgeTemp = 25.0; //temperature threshold for activating first message
-	const double roomTempLow = 28.0; //temperature threshold for activating second and third messags
-	const double roomTempHigh = 35.0;
-	const double Tf = 25.0;
-	const double Tr = 28.0;
-        int time_outoffridge = 10;
-	int time_atroomtemp = 20; //countdown starting value, is currently placeholder 3 minutes
+        const double fridgeTemp = 15.0; //temperature threshold for activating first message
+	const double roomTempLow = 15.7; //temperature threshold for activating second and third messags
+	const double roomTempHigh = 16.0;
+	const double Tf = 15.0;
+	const double Tr = 16.0;
+        int time_outoffridge = 30;
+	int time_atroomtemp = 30; //countdown starting value, is currently placeholder 3 minutes
         bool running = false;
 	bool running2 = false;
 

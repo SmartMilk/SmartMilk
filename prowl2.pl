@@ -30,9 +30,9 @@
 # See the Prowl website <http://prowlapp.com>
 
 #------------------------
-# THIS IS PERL SCRIPT 1:
+# THIS IS PERL SCRIPT 2
 # 
-# FOR SENDING THE USER MESSAGE 1: MILK OUT OF THE FRIDGE FOR 30MINS
+# FOR SENDING THE USER MESSAGE 2
 #------------------------
 
 
@@ -51,9 +51,9 @@ GetOptions(\%options, 'apikey=s', 'apikeyfile=s',
 # Specify the options and messages/events here
 $options{'apikeyfile'} ||= "prowlApiKey.txt";
 $options{'application'} ||= "SmartMilk";
-$options{'event'} ||= "Milk out of the fridge!";
-$options{'notification'} ||= "Your milk has been out of the fridge for 30 minutes. Please put it back.";
-$options{'priority'} ||= 0;
+$options{'event'} ||= "Milk is now at room temperature!";
+$options{'notification'} ||= "Your milk has reached room temperature. You have two hours to return it before it spoils.";
+$options{'priority'} ||= 1;
 $options{'url'} ||= "";
 
 pod2usage(-verbose => 2) if (exists($options{'help'}));

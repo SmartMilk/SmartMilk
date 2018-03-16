@@ -13,7 +13,7 @@
 #include <iostream> //testing purposes only
 
 //#include <wiringPi.h>
-#define BUFSIZE 128 //experiment with different buffer sizes
+#define BUFSIZE 128  //experiment with different buffer sizes
 //#define PIN RPI_GPIO_P1_12
 
 //temperature reading function
@@ -27,7 +27,7 @@ double tempreadbuster(double *a)
 	char   stringTemp[5];   //Temperature is stored in a String
 
 	//When using your own temperature sensor, change the serial number from the one below:
-	openFile = open("/sys/bus/w1/devices/28-0317606edbff/w1_slave", O_RDONLY); 
+	openFile = open("/sys/bus/w1/devices/28-0317604cafff/w1_slave", O_RDONLY); 
 	if (-1 == openFile) {
 		perror("could not identify device");
 		return 1;
@@ -65,7 +65,7 @@ double tempreadbuster(double *a)
 	return result;
 } //tempreadbuster function ends here
 
-Window::Window() : Tf(25.0), Tr(28.0)
+Window::Window() : Tf(15.0), Tr(16.0)
 // Function calls upon the window header and continues to define elements
 {
 	//These functions creates all the GUI elements except the main Layout
@@ -78,7 +78,7 @@ Window::Window() : Tf(25.0), Tr(28.0)
 	for (int index = 0; index<plotDataSize; ++index)
 	{
 		xData[index] = index;
-		yData[index] = 20;
+		yData[index] = 0;
 		y1Data[index] = Tf; // fridge temp threshold
 		y2Data[index] = Tr; // room temp threshold
 	}
@@ -104,8 +104,8 @@ Window::Window() : Tf(25.0), Tr(28.0)
 	plot->show();
 	plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
 
-	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("time"));
-	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("temperature C"));
+	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("Time (ms)"));
+	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("Temperature"));
 
 	//Set up the main layout
 	mainLayout = new QHBoxLayout;	     //horizontal layout
@@ -149,7 +149,7 @@ void Window::createCountdownBox()
         //Initialising timer
         QTimer       *timer = new QTimer;
         connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
-        timer->setInterval(1000);
+        timer->setInterval(500);
         timer->start();
 
 	reading = new QLabel;
@@ -204,23 +204,23 @@ void Window::startCountdown()
 	}
 	else
 	{
-		time_outoffridge = 10; //reset timer
+		time_outoffridge = 30; //reset timer
 		s = QString::number(time_outoffridge);
 		reading->setText(s);
 		running = false;
 		running2 = false;
 	}
 
-	if (time_outoffridge >= 0 && running)
+	if (time_outoffridge >= 1 && running)
 	{
 		QString s = QString::number(time_outoffridge);
 		reading->setText(s);
-		if (time_outoffridge ==0 && running)			//Displays countdown on QT
+		if (time_outoffridge == 1 && running)			//Displays countdown on QT
 			{
 				std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
-				//system("./some_script1.sh"); // run prowl1.pl through shell script from .cpp file
+				system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
 				//temp will stay > fridgeTemp so this condition always true -> message 1 will be repeatedly sent
-				//running = false //use this to stop this timer from triggering message 1 
+				running = false; //use this to stop this timer from triggering message 1 
 			}
 	time_outoffridge--;
 	}
@@ -228,17 +228,21 @@ void Window::startCountdown()
 	{
 		running2 = true;
 	}
-	if (time_atroomtemp >=0   && running2)
+	if (time_atroomtemp >= 1   && running2)
 	{
 	QString k = QString::number(time_atroomtemp);
         reading->setText(k);                    //Displays countdown on
-		if (time_atroomtemp == 15 && running2)
+		if (time_atroomtemp == 25 && running2) // delay to allow temp tp settle 
 		{
                 std::cout << "Message 2 sent" << std::endl; //replace action wi$
+		 system("./shellScript2.sh"); // run prowl$
+
 		}
-		else if (time_atroomtemp == 0 && running2)
+		else if (time_atroomtemp == 1 && running2)
 		{
-		 std::cout << "Message 3 sent" << std::endl; //replace action wi
+		 std::cout << "Message 3 sent" << std::endl; //replace action
+		 system("./shellScript3.sh"); // run prowl$
+
 		}
 	 time_atroomtemp--;
 	}
