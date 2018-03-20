@@ -13,6 +13,4 @@ int main(int argc, char *argv[])
         return app.exec();
 }
 
-//note to self: to inherit from multiple classes:
 
-// class a: public b, public c
