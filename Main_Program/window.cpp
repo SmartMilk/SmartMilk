@@ -66,7 +66,13 @@ double tempreadbuster(double *a)
   // printf("Device: %s  - ", dev);
   // printf("Temp: %.3f C  ", tempC / 1000);
   // printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
-  *a = tempC/1000;
+   if (isCelsius)
+   {
+	   *a = tempC / 1000;
+   }
+   else {
+	   *a = (tempC / 1000) * 9 / 5 + 32
+   }
   double result = *a;
   return result;
   }
@@ -93,11 +99,21 @@ Window::Window() : Tf(15.0), Tr(16.0)
 	}
 
 	curve = new QwtPlotCurve;
-        curve->setPen(QPen(Qt::green,2));
+	if (isCelsius)
+	{
+		pen.setColor("orange");
+		pen.setWidth(2);
+		curve->setPen(pen);
+	}
+	else 
+	{
+		curve->setPen(QPen(Qt::green, 2));
+	}
+        
 	curve1 = new QwtPlotCurve;
         curve1->setPen(QPen(Qt::blue,2));
 	curve2 = new QwtPlotCurve;
-	curve2->setPen(QPen(Qt::red,2));
+		curve2->setPen(QPen(Qt::red,2));
 	plot = new QwtPlot;
 
 	//Make a plot curve from the data and attach it to the plot
@@ -139,8 +155,8 @@ void Window::createTempScale()
 	TempScale->setLayout(layout);
 
 	//Functionality of Buttons
-//	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
-//	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
+	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
+	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
 
 	//Buttons Design
 	Button1->setStyleSheet("QWidget {border-image: url(./pics/orangepaint.png) }");
@@ -260,20 +276,14 @@ void Window::startCountdown()
 
 
 //Button1 function - Display in deg. C
-//void Window::setDegC()
-//{
-// Code here
-//}
+void Window::setDegC()
+{
+	isCelsius = true;
+}
 
 //Button2 function - Display in deg. F
-//void Window::setDegF()
-//{
-// Code here
-//}
+void Window::setDegF()
+{
+	isCelsius = false;
+}
 
-// Function to turn an LED ON when milk temp is high and timer has passed enough seconds
-//if [condition 1] && [condition 2] {
-//	digitalWrite(1, 1); // turns on LED
-//else
-//	digitalWrite(1, 0); // turns off LED
-//}
