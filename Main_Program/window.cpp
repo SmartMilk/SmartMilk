@@ -63,10 +63,9 @@ double tempreadbuster(double *a)
 	*a = tempC;                              //Pointer for using temperature in other function
 	double result = *a;
 	return result;
-} //tempreadbuster function ends here
+} 
 
 Window::Window() : Tf(15.0), Tr(16.0)
-// Function calls upon the window header and continues to define elements
 {
 	//These functions creates all the GUI elements except the main Layout
 
@@ -114,7 +113,7 @@ Window::Window() : Tf(15.0), Tr(16.0)
 	setLayout(mainLayout);
 }
 
-void Window::createTempScale()
+void Window::createTempScale() //sets up the celsius and farenheit buttons
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
 
@@ -139,7 +138,7 @@ void Window::createTempScale()
 }
 
 
-void Window::createCountdownBox()
+void Window::createCountdownBox() //sets up the countdown timer box
 {
 	CountdownBox = new QGroupBox(tr("Countdown to message"));
 	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
