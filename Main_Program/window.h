@@ -1,4 +1,4 @@
-//This file defines all the classes and objects used in window.cpp
+#//This file defines all the classes and objects used in window.cpp
 
 //for timer, trying to merge with timer-shutdown ( https://github.com/raymon1/timer-shutdown )
 #ifndef WINDOW_H
@@ -24,7 +24,6 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
-
         const double fridgeTemp = 15.0; //temperature threshold for activating first message
 	const double roomTempLow = 15.7; //temperature threshold for activating second and third messags
 	const double roomTempHigh = 16.0;

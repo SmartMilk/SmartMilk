@@ -1,5 +1,7 @@
 #include "window.h"
 #include <QtGui>
+#include <dirent.h>
+#include <string.h>
 #include <QFont>
 #include <stdio.h>
 #include <sys/types.h>
@@ -8,64 +10,72 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <thread>
 #include <iostream> //testing purposes only
 
 //#include <wiringPi.h>
-#define BUFSIZE 128  //experiment with different buffer sizes
+//#define BUFSIZE 256  //experiment with different buffer sizes
 //#define PIN RPI_GPIO_P1_12
 
 //temperature reading function
 double tempreadbuster(double *a)
 {
-	//First define variables:
-	double tempC;            //Here is stored the temperature as a double
-	int    openFile;	//It is needed to open the sensor
-	int    reader;
-	char   buffer[BUFSIZE];
-	char   stringTemp[5];   //Temperature is stored in a String
 
-	//When using your own temperature sensor, change the serial number from the one below:
-	openFile = open("/sys/bus/w1/devices/28-0317604cafff/w1_slave", O_RDONLY); 
-	if (-1 == openFile) {
-		perror("could not identify device");
-		return 1;
-	}
+ DIR *dir;
+ struct dirent *dirent;
+ char dev[16];      // Dev ID
+ char devPath[128]; // Path to device
+ char buf[256];     // Data from device
+ char tmpData[6];   // Temp C * 1000 reported by device
+ char path[] = "/sys/bus/w1/devices";
+ ssize_t numRead;
 
-	//Infinite loop which breaks after reading the sensor or failing in accessing it
-	while (1) {
-		reader = read(openFile, buffer, BUFSIZE);
-		if (0 == reader) {
-			break;
-		}
-		if (-1 == reader) {
-			if (errno == EINTR) {
-				continue;
-			}
-			perror("read()");
-			close(openFile);
-			return 1;
-		}
-	}
+ dir = opendir (path);
+ if (dir != NULL)
+ {
+  while ((dirent = readdir (dir)))
+   // 1-wire devices are links beginning with 28-
+   if (dirent->d_type == DT_LNK &&
+     strstr(dirent->d_name, "28-0317604cafff") != NULL) {
+    strcpy(dev, dirent->d_name);
+    printf("\nDevice: %s\n", dev);
+   }
+        (void) closedir (dir);
+        }
+ else
+ {
+  perror ("Couldn't open the w1 devices directory");
+  return 1;
+ }
 
-	//Storing the temperature in a String
-	for (std::size_t i = 0; i<sizeof(buffer); i++) {
-		if (buffer[i] == 116) {
-			for (std::size_t j = 0; j<sizeof(stringTemp); j++) {
-				stringTemp[j] = buffer[i + 2 + j];
-			}
-		}
-	}
-
-
-	tempC = (double)atoi(stringTemp) / 1000; //Conversion from char to double
-	*a = tempC;                              //Pointer for using temperature in other function
-	double result = *a;
-	return result;
-} 
+        // Assemble path to OneWire device
+ sprintf(devPath, "%s/%s/w1_slave", path, dev);
+ // Read temp continuously
+ // Opening the device's file triggers new reading
+ while(1) {
+  int fd = open(devPath, O_RDONLY);
+  if(fd == -1)
+  {
+   perror ("Couldn't open the w1 device.");
+   return 1;
+  }
+  while((numRead = read(fd, buf, 256)) > 0)
+  {
+   strncpy(tmpData, strstr(buf, "t=") + 2, 5);
+   double tempC = strtof(tmpData, NULL);
+  // printf("Device: %s  - ", dev);
+  // printf("Temp: %.3f C  ", tempC / 1000);
+  // printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
+  *a = tempC/1000;
+  double result = *a;
+  return result;
+  }
+  close(fd);
+ }
+} //tempreadbuster function ends here
 
 Window::Window() : Tf(15.0), Tr(16.0)
+// Function calls upon the window header and continues to define elements
 {
 	//These functions creates all the GUI elements except the main Layout
 
@@ -113,7 +123,7 @@ Window::Window() : Tf(15.0), Tr(16.0)
 	setLayout(mainLayout);
 }
 
-void Window::createTempScale() //sets up the celsius and farenheit buttons
+void Window::createTempScale()
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
 
@@ -138,7 +148,7 @@ void Window::createTempScale() //sets up the celsius and farenheit buttons
 }
 
 
-void Window::createCountdownBox() //sets up the countdown timer box
+void Window::createCountdownBox()
 {
 	CountdownBox = new QGroupBox(tr("Countdown to message"));
 	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
@@ -148,7 +158,7 @@ void Window::createCountdownBox() //sets up the countdown timer box
         //Initialising timer
         QTimer       *timer = new QTimer;
         connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
-        timer->setInterval(500);
+        timer->setInterval(1000);
         timer->start();
 
 	reading = new QLabel;
@@ -189,62 +199,62 @@ void Window::timerEvent(QTimerEvent *)
 void Window::startCountdown()
 {
 
-	double a;
-	double inVal = tempreadbuster(&a); //intake values for temp.
-	QString s = QString::number(time_outoffridge);
-	QString k = QString::number(time_atroomtemp);
-	reading->setText(s);			//Displays countdown on QT
+//	double a;
+//	double inVal = tempreadbuster(&a); //intake values for temp.
+//	QString s = QString::number(time_outoffridge);
+//	QString k = QString::number(time_atroomtemp);
+//	reading->setText(s);			//Displays countdown on QT
 	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
 
 	//testing countdown function: for t > 24C (holding sensor in hand),
-	if (inVal > fridgeTemp)
-	{
-		running = true;
-	}
-	else
-	{
-		time_outoffridge = 30; //reset timer
-		s = QString::number(time_outoffridge);
-		reading->setText(s);
-		running = false;
-		running2 = false;
-	}
-
-	if (time_outoffridge >= 1 && running)
-	{
-		QString s = QString::number(time_outoffridge);
-		reading->setText(s);
-		if (time_outoffridge == 1 && running)			//Displays countdown on QT
-			{
-				std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
-				system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
-				//temp will stay > fridgeTemp so this condition always true -> message 1 will be repeatedly sent
-				running = false; //use this to stop this timer from triggering message 1 
-			}
-	time_outoffridge--;
-	}
-	if (inVal >= roomTempLow && inVal <= roomTempHigh)
-	{
-		running2 = true;
-	}
-	if (time_atroomtemp >= 1   && running2)
-	{
-	QString k = QString::number(time_atroomtemp);
-        reading->setText(k);                    //Displays countdown on
-		if (time_atroomtemp == 25 && running2) // delay to allow temp tp settle 
-		{
-                std::cout << "Message 2 sent" << std::endl; //replace action wi$
-		 system("./shellScript2.sh"); // run prowl$
-
-		}
-		else if (time_atroomtemp == 1 && running2)
-		{
-		 std::cout << "Message 3 sent" << std::endl; //replace action
-		 system("./shellScript3.sh"); // run prowl$
-
-		}
-	 time_atroomtemp--;
-	}
+//	if (inVal > fridgeTemp)
+//	{
+//		running = true;
+//	}
+//	else
+//	{
+//		time_outoffridge = 30; //reset timer
+//		s = QString::number(time_outoffridge);
+//		reading->setText(s);
+//		running = false;
+//		running2 = false;
+//	}
+//
+//	if (time_outoffridge >= 1 && running)
+//	{
+//		QString s = QString::number(time_outoffridge);
+//		reading->setText(s);
+//		if (time_outoffridge == 1 && running)			//Displays countdown on QT
+//			{
+//				std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
+//				system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
+//				//temp will stay > fridgeTemp so this condition always true -> message 1 will be repeatedly sent
+//				running = false; //use this to stop this timer from triggering message 1 
+//			}
+//	time_outoffridge--;
+//	}
+//	if (inVal >= roomTempLow && inVal <= roomTempHigh)
+//	{
+//		running2 = true;
+//	}
+//	if (time_atroomtemp >= 1   && running2)
+//	{
+//	QString k = QString::number(time_atroomtemp);
+//        reading->setText(k);                    //Displays countdown on
+//		if (time_atroomtemp == 25 && running2) // delay to allow temp tp settle 
+//		{
+//                std::cout << "Message 2 sent" << std::endl; //replace action wi$
+//		 system("./shellScript2.sh"); // run prowl$
+//
+//		}
+//		else if (time_atroomtemp == 1 && running2)
+//		{
+//		 std::cout << "Message 3 sent" << std::endl; //replace action
+//		 system("./shellScript3.sh"); // run prowl$
+//
+//		}
+//	 time_atroomtemp--;
+//	}
 }
 
 
