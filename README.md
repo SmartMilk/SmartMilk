@@ -10,26 +10,26 @@ SmartMilk was developed as part of the Real Time Embedded Programming module at 
 # Making it work
 To clone this git repository: 
 
-`
+```
 git clone https://github.com/SmartMilk/SmartMilk.git
-`
+```
 
 To build:
 
-`
+```
 cd SmartMilk
 qmake
 make
-`
+```
 
 To run(assuming you are logged into the RPi over ssh and no X-server is running):
 
-`
+```
 startx ./SmartMilk
-`
+```
 
 or with X running:
 
-`
+```
 ./SmartMilk
 `
