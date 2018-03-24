@@ -1,4 +1,4 @@
-SmartMilk: an automated milk monitoring system
+# SmartMilk: an automated milk monitoring system
  
 This repository contains the software, and associated instructions, required to implement the SmartMilk application for your own use. 
 
