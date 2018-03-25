@@ -31,7 +31,7 @@ public:
 	const double Tf = 15.0;
 	const double Tr = 16.0;
     int time_outoffridge = 30;
-	int time_atroomtemp = 30; //countdown starting value, is currently placeholder 3 minutes
+        int time_atroomtemp = 30; //countdown starting value, is currently placeholder 3 minutes
     bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
@@ -40,14 +40,14 @@ public:
     void setDegC();  //Set the temperature to degrees C
     void setDegF();  //Set the temperature to degrees F
     void timerEvent(QTimerEvent *);
-	void startCountdown();
+    void startCountdown();
 
 
 private:
 	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
 
 	void createTempScale();  //This function creates celsius and farenheit push button GUIs
-	void createCountdownBox();  //Creates a GUI slot for a countdown timer for sending Prowl Messages
+	void createMessageBox();  //Creates a GUI slot for a countdown timer for sending Prowl Messages
 	void createTempCountdownVertSplit();   //Function splits the tempscale and countdown boxes vertically
 
 	//Declaring pointers
@@ -58,18 +58,20 @@ private:
 	QwtPlotCurve *curve1;
 	QwtPlotCurve *curve2;
 	QLabel       *reading;
-	QLabel       *space;
-	QLabel       *manual;
-	QPushButton  *heaterLed;
-	QPushButton  *heaterOff;
+	QLabel       *message1;
+	QLabel       *message2;
+	QLabel       *message3;
+	QPushButton  *Button1;
+	QPushButton  *Button2;
 
 	//Qt Groups. Each group is created inside of its own function
 	QGroupBox *TempScale;
-	QGroupBox *CountdownBox;
+	QGroupBox *MessageBox;
 	QGroupBox *TempCountdownVertSplit;
 
 	//The main Layout which will contain all the GUI elements
 	QHBoxLayout  *mainLayout;  // horizontal layout
+	QVBoxLayout  *layout; // label layouts
 
 	static const int plotDataSize = 60;
 
