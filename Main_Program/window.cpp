@@ -86,9 +86,9 @@ Window::Window() : Tf(15.0), Tr(16.0)
 	//These functions creates all the GUI elements except the main Layout
 
 	createTempScale();
-	createCountdownBox();
+	createMessageBox();
 	createTempCountdownVertSplit();
-
+	
 	//Set up the initial plot data
 	for (int index = 0; index<plotDataSize; ++index)
 	{
@@ -111,7 +111,7 @@ Window::Window() : Tf(15.0), Tr(16.0)
 	}
         
 	curve1 = new QwtPlotCurve;
-        curve1->setPen(QPen(Qt::blue,2));
+        	curve1->setPen(QPen(Qt::blue,2));
 	curve2 = new QwtPlotCurve;
 		curve2->setPen(QPen(Qt::red,2));
 	plot = new QwtPlot;
@@ -123,13 +123,12 @@ Window::Window() : Tf(15.0), Tr(16.0)
         curve1->attach(plot);
 	curve2->setSamples(xData, y2Data, plotDataSize);
         curve2->attach(plot);
-
-
+	
 	plot->replot();
 	plot->show();
-	plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
+	//plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
 
-	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("Time (ms)"));
+	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("Data Index"));
 	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("Temperature"));
 
 	//Set up the main layout
@@ -143,7 +142,8 @@ void Window::createTempScale()
 {
 	TempScale = new QGroupBox(tr("Temp. Scale"));
 
-	TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} "); //placeholder background
+	// NEED TO FIX THIS
+	//TempScale->setStyleSheet("QGroupBox {border-image: url(./pics/Smart.png)} "); //placeholder background
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QPushButton *Button1 = new QPushButton(tr("Celsius"));
@@ -164,10 +164,13 @@ void Window::createTempScale()
 }
 
 
-void Window::createCountdownBox()
+void Window::createMessageBox()
 {
-	CountdownBox = new QGroupBox(tr("Countdown to message"));
-	CountdownBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
+	MessageBox = new QGroupBox(tr("User Messages"));
+	
+	// NEED TO FIX THIS STYLE
+	//MessageBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); 
+	
 	QVBoxLayout *layout = new QVBoxLayout;
 
 	//This label takes the countdown to sending a message
@@ -176,16 +179,37 @@ void Window::createCountdownBox()
         connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
         timer->setInterval(1000);
         timer->start();
-
-	reading = new QLabel;
+		
+	/*------------------------------*/
+	// MESSAGE LABELS
+	// Initialise labels with messages
+	
+	// Dynamic user warning label. Different from message labels - inform user when T thresholds exceeded.
+	// Changes message instead of changing colour.
+	QLabel* reading = new QLabel;
+	
+	// Static message labels
+	QLabel* message1 = new QLabel;
+		message1->setText("Message 1 sent");
+	QLabel* message2 = new QLabel;
+		message2->setText("Message 2 sent");
+	QLabel* message3 = new QLabel;
+		message3->setText("Message 3 sent");
+	
+	// Set layout for each label
 	layout->addWidget(reading);
-
-	CountdownBox->setLayout(layout);
+	layout->addWidget(message1);
+	layout->addWidget(message2);
+	layout->addWidget(message3);
+	
+	// Set overall layout
+	MessageBox->setLayout(layout);
 }
+
 
 void Window::createTempCountdownVertSplit()
 {
-	TempCountdownVertSplit = new QGroupBox(tr("Smart Milk Monitor"));
+	TempCountdownVertSplit = new QGroupBox(tr("SmartMilk Monitor"));
 	QVBoxLayout *layout = new QVBoxLayout;		//Vertical Box Layout
 	layout->addWidget(TempScale);	//First slot of the Box
 	layout->addWidget(CountdownBox);		//Second slot of the Box
@@ -201,11 +225,9 @@ void Window::timerEvent(QTimerEvent *)
 	//wiringPiSetup();			//Set up WiringPI library
 	//pinMode(1, OUTPUT);			//Set up GPIO 18 as OUTPUT
 
-								//Add new reading to the plot
+	//Add new reading to the plot
 	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
 	yData[plotDataSize - 1] = inVal;
-
-
 	curve->setSamples(xData, yData, plotDataSize);
 	plot->replot();
 	printf("%.3f C\n", inVal);		//Print current temperature in terminal
@@ -215,62 +237,72 @@ void Window::timerEvent(QTimerEvent *)
 void Window::startCountdown()
 {
 
-//	double a;
-//	double inVal = tempreadbuster(&a); //intake values for temp.
-//	QString s = QString::number(time_outoffridge);
-//	QString k = QString::number(time_atroomtemp);
-//	reading->setText(s);			//Displays countdown on QT
-	// In future iterations will try to implement as a proper countdown clock with minutes and seconds
+	// Call in temperature values 
+	double a;
+	double inVal = tempreadbuster(&a); //intake values for temp.
+	
+	//--------------------------
+	/* MESSAGE 1: */
 
-	//testing countdown function: for t > 24C (holding sensor in hand),
-//	if (inVal > fridgeTemp)
-//	{
-//		running = true;
-//	}
-//	else
-//	{
-//		time_outoffridge = 30; //reset timer
-//		s = QString::number(time_outoffridge);
-//		reading->setText(s);
-//		running = false;
-//		running2 = false;
-//	}
-//
-//	if (time_outoffridge >= 1 && running)
-//	{
-//		QString s = QString::number(time_outoffridge);
-//		reading->setText(s);
-//		if (time_outoffridge == 1 && running)			//Displays countdown on QT
-//			{
-//				std::cout << "Message 1 sent" << std::endl; //replace action with executing prowl script
-//				system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
-//				//temp will stay > fridgeTemp so this condition always true -> message 1 will be repeatedly sent
-//				running = false; //use this to stop this timer from triggering message 1 
-//			}
-//	time_outoffridge--;
-//	}
-//	if (inVal >= roomTempLow && inVal <= roomTempHigh)
-//	{
-//		running2 = true;
-//	}
-//	if (time_atroomtemp >= 1   && running2)
-//	{
-//	QString k = QString::number(time_atroomtemp);
-//        reading->setText(k);                    //Displays countdown on
-//		if (time_atroomtemp == 25 && running2) // delay to allow temp tp settle 
-//		{
-//                std::cout << "Message 2 sent" << std::endl; //replace action wi$
-//		 system("./shellScript2.sh"); // run prowl$
-//
-//		}
-//		else if (time_atroomtemp == 1 && running2)
-//		{
-//		 std::cout << "Message 3 sent" << std::endl; //replace action
-//		 system("./shellScript3.sh"); // run prowl$
-//
-//		}
-//	 time_atroomtemp--;
-//	}
+	if (inVal > fridgeTemp)
+	{
+		running = true;
+		reading->setText("Milk is out of the fridge."); // warning message to real-time plot that Tm > Tf
+	}
+	else
+	{
+		time_outoffridge = 30; //reset timer
+		reading->setText("Milk temperature is OK."); // message that milk is in correct storage conditions
+		running = false;
+		running2 = false;
+	}
+
+	//if (time_outoffridge >= 1 && running)
+	//{
+	//	QString s = QString::number(time_outoffridge);
+	//	reading->setText(s);
+	
+	
+	if (time_outoffridge == 0 && running)			//Displays countdown on QT
+	{
+		system("./Prowl_Scripts/shellScript1.sh"); // run prowl1.pl through shellScript1.sh
+		message1->setStyleSheet("QLabel { background-color : red}"); // change label colour upon condition being met	
+		running = false; //use this to stop this timer from triggering message 1 
+	
+	}
+	//time_outoffridge--;
+	//}
+	
+	//---------------------------
+	/* MESSAGE 2 */
+	
+	if (inVal >= roomTempLow && inVal <= roomTempHigh)
+	{
+		reading->setText("Milk is near room temperature"); // Tm will fluctuate, so create bandwidth
+		running2 = true;
+	}
+	
+	//if (time_atroomtemp >= 1   && running2)
+	//{
+	//QString k = QString::number(time_atroomtemp);
+       // reading->setText(k);   
+		
+	if (time_atroomtemp == 25 && running2) // delay 5secs to allow time for Tm to stay at Tr. If Tm still Tr, send message
+	{
+		system("./Prowl_Scripts/shellScript2.sh"); // run prowl2.pl through shellScript2.sh
+		message2->setStyleSheet("QLabel { background-color : red}"); // indicate message activation
+	}
+	
+	//---------------------------
+	/* MESSAGE 3 */
+	else if (time_atroomtemp == 1 && running2) // if Tm=Tr for certain length of time, send 3rd message
+	{
+		system("./Prowl_Scripts/shellScript3.sh"); // run prowl3.pl through shellScript3.sh
+		message3->setStyleSheet("QLabel { background-color : red}"); // indicate message activation
+	}
+	
+	//time_atroomtemp--;
+	//}
 }
 
 
