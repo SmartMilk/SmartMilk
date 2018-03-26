@@ -295,15 +295,21 @@ void Window::startCountdown()
 
 
 
-//Button1 function - Display in deg. C
+//Button1 function - Display Tf, Tm, Tr in deg. C
 void Window::setDegC()
 {
 	isCelsius = true;
+	Tf = fridgeTemp;
+	Tr = roomTempHigh;
+	return Tf Tr;
 }
 
-//Button2 function - Display in deg. F
+//Button2 function - Display Tf, Tm, Tr in deg. F
 void Window::setDegF()
 {
 	isCelsius = false;
+	Tf = fridgeTemp*9/5 + 32;
+	Tr = roomTempHigh*9/5 + 32;
+	return Tf Tr;
 }
 
