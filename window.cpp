@@ -147,9 +147,13 @@ void Window::createTempScale()
 	layout->addWidget(Button2);
 	TempScale->setLayout(layout);
 
-	//Functionality of Buttons
-	connect(Button1, SIGNAL(clicked()), SLOT(setDegC())); //clicking this activates function setDegC()
-	connect(Button2, SIGNAL(clicked()), SLOT(setDegF())); //activates setDegF
+	//Functionality of Button1
+	connect(Button1, SIGNAL(clicked()), SLOT(setFridgeDegC())); 
+	connect(Button1, SIGNAL(clicked()), SLOT(setRoomDegC()));
+	
+	// Functionality of Button2
+	connect(Button2, SIGNAL(clicked()), SLOT(setFridgeDegF())); 
+	connect(Button2, SIGNAL(clicked()), SLOT(setRoomDegF())); 
 
 	//Buttons Design
 	//Button1->setStyleSheet("QWidget {border-image: url(./pics/orangepaint.png) }");
@@ -207,24 +211,24 @@ void Window::timerEvent(QTimerEvent *)
 	double truput; //resulting output
 	if (isCelsius == false)
 	{
-	truput = inVal *9/5 + 32;
+		truput = inVal *9/5 + 32;
 	}
 	else
 	{
-	truput = inVal;
+		truput = inVal;
 	}
 	//Leaving this in as an option to set up an LED
 	//wiringPiSetup();			//Set up WiringPI library
 	//pinMode(1, OUTPUT);			//Set up GPIO 18 as OUTPUT
 
-								//Add new reading to the plot
+	//Add new reading to the plot
 	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
 	yData[plotDataSize - 1] = truput;
 
 
 	curve->setSamples(xData, yData, plotDataSize);
 	plot->replot();
-	printf("%.3f C\n", inVal);		//Print current temperature in terminal
+	printf("%.3f C\n", inVal); //Print current temperature in terminal
 
 }
 
@@ -294,22 +298,41 @@ void Window::startCountdown()
 }
 
 
+/* Threshold functions */
 
 //Button1 function - Display Tf, Tm, Tr in deg. C
-void Window::setDegC()
+// Return fridge temperature threshold in degC
+void Window::setFridgeDegC()
 {
 	isCelsius = true;
 	Tf = fridgeTemp;
+	return Tf;
+}
+
+//Button1 function - Display Tf, Tm, Tr in deg. C
+// Return room temperature threshold in degC
+void Window::setRoomDegC()
+{
+	isCelsius = true;
 	Tr = roomTempHigh;
-	return Tf Tr;
+	return Tr;
 }
 
 //Button2 function - Display Tf, Tm, Tr in deg. F
-void Window::setDegF()
+// Return fridge temperature threshold in degF
+void Window::setFridgeDegF()
 {
 	isCelsius = false;
 	Tf = fridgeTemp*9/5 + 32;
+	return Tf;
+}
+
+//Button2 function - Display Tf, Tm, Tr in deg. F
+// Return room temperature threshold in degF
+void Window::setRoomDegF()
+{
+	isCelsius = false;
 	Tr = roomTempHigh*9/5 + 32;
-	return Tf Tr;
+	return Tr;
 }
 
