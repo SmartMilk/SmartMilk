@@ -37,8 +37,10 @@ public:
 	bool isCelsius = true;
 
  private slots:
-    void setDegC();  //Set the temperature to degrees C
-    void setDegF();  //Set the temperature to degrees F
+    void setFridgeDegC();  //Set the temperature to degrees C
+    void setRoomDegC();  //Set the temperature to degrees C
+    void setFridgeDegF();  //Set the temperature to degrees F
+    void setRoomDegF();  //Set the temperature to degrees F
     void timerEvent(QTimerEvent *);
     void startCountdown();
 
