@@ -24,21 +24,21 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
 
-    const double fridgeTemp = 24.5; //temperature threshold for activating first message
+        const double fridgeTemp = 24.5; //temperature threshold for activating first message
 	const double roomTempLow = 26.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 27.0;
 	double Tf = 24.5; //Fridge temp. threshold plotted on QT
 	double Tr = 27.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 20; //Countdown timer default values
-	int time_atroomtemp = 30; 
-    bool running = false;
+        int time_outoffridge = 20; //Countdown timer default values
+	int time_atroomtemp = 30;
+        bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
 
  private slots:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
-    void timerEvent(QTimerEvent *);
+    void timerEvent();
     void startCountdown();
 
 
