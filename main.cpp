@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
         // create the window
         Window window;
         window.showMaximized();
-        // call the window.timerEvent function every 50ms
+        // call the window.timerEvent function every _ms
         window.startTimer(10);
         // execute the application
         return app.exec();

@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <thread>
+#include <chrono>
 #include <iostream> //testing purposes only
 
 //#include <wiringPi.h>
@@ -37,7 +38,7 @@ double tempreadbuster(double *a)
    // 1-wire devices are links beginning with 28-
    if (dirent->d_type == DT_LNK &&
      strstr(dirent->d_name, "28-0317604cafff") != NULL) {
-    strcpy(dev, dirent->d_name);
+     strcpy(dev, dirent->d_name);
     printf("\nDevice: %s\n", dev);
    }
         (void) closedir (dir);
@@ -73,9 +74,9 @@ double tempreadbuster(double *a)
   }
   close(fd);
  }
-} //tempreadbuster function ends here
+} 
 
-Window::Window() : Tf(24.5), Tr(27.0)
+Window::Window() : Tf, Tr
 // Function calls upon the window header and continues to define elements
 {
 	//These functions creates all the GUI elements except the main Layout
@@ -94,13 +95,13 @@ Window::Window() : Tf(24.5), Tr(27.0)
 	}
 
 	curve = new QwtPlotCurve;
-	if (isCelsius)
+	if (isCelsius == false)
 	{
-	        curve->setPen(QPen(Qt::yellow, 2));
+	        curve->setPen(QPen(Qt::green, 2));
 	}
-	else if (isCelsius == false)
+	else
 	{
-		curve->setPen(QPen(Qt::green, 2));
+			curve->setPen(QPen(Qt::yellow, 2));
 	}
 
 	curve1 = new QwtPlotCurve;
@@ -111,7 +112,7 @@ Window::Window() : Tf(24.5), Tr(27.0)
 
 	//Make a plot curve from the data and attach it to the plot
 	curve->setSamples(xData, yData, plotDataSize);
-	curve->attach(plot);
+		curve->attach(plot);
 	curve1->setSamples(xData, y1Data, plotDataSize);
         curve1->attach(plot);
 	curve2->setSamples(xData, y2Data, plotDataSize);
@@ -130,6 +131,13 @@ Window::Window() : Tf(24.5), Tr(27.0)
 	mainLayout->addWidget(plot);         //set up the plot as first slot
 	mainLayout->addWidget(TempCountdownVertSplit);   //set up the tempscale + countdown timer as second slot
 	setLayout(mainLayout);
+
+	//Initialising timer
+	//QTimer       *timer = new QTimer;
+	//connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
+	//timer->setInterval(0);
+	//timer->start();
+
 }
 
 void Window::createTempScale()
@@ -148,12 +156,10 @@ void Window::createTempScale()
 	TempScale->setLayout(layout);
 
 	//Functionality of Button1
-	connect(Button1, SIGNAL(clicked()), SLOT(setFridgeDegC())); 
-	connect(Button1, SIGNAL(clicked()), SLOT(setRoomDegC()));
+	connect(Button1, SIGNAL(clicked()), SLOT(setCelsius())); 
 	
 	// Functionality of Button2
-	connect(Button2, SIGNAL(clicked()), SLOT(setFridgeDegF())); 
-	connect(Button2, SIGNAL(clicked()), SLOT(setRoomDegF())); 
+	connect(Button2, SIGNAL(clicked()), SLOT(setFarenheit())); 
 
 	//Buttons Design
 	//Button1->setStyleSheet("QWidget {border-image: url(./pics/orangepaint.png) }");
@@ -166,12 +172,6 @@ void Window::createMessageBox()
 	MessageBox = new QGroupBox(tr("User Messages"));
 	//MessageBox->setStyleSheet("QGroupBox {border-image: url(./pics/Milk.png)} "); //Placeholder Background
 	QVBoxLayout *layout = new QVBoxLayout;
-
-        //Initialising timer
-        QTimer       *timer = new QTimer;
-        connect(timer, SIGNAL(timeout()), SLOT(startCountdown()));
-        timer->setInterval(1000);
-        timer->start();
 
 	// Message labels
 	// Dynamic user warning label. Inform user when T thresholds exceeded
@@ -234,67 +234,70 @@ void Window::timerEvent(QTimerEvent *)
 
 void Window::startCountdown()
 {
-
+// 2 timers to activate prowl messages: first timer activates when milk is out of fridge, sending message 1
+//	second  timer activates when milk approaches room tempterature, sending messages 2 and 3
 	double a;
 	double inVal = tempreadbuster(&a); //intake values for temp.
-	//QString s = QString::number(time_outoffridge);
-	//QString k = QString::number(time_atroomtemp);
-	//reading->setText(s);			//Displays countdown on QT
 
 	//-------------------------
 	// MESSAGE 1
 
-	if (inVal > fridgeTemp)
+	if (inVal > fridgeTemp && inVal <= roomTempLow) //These conditions will change in non-testing conditions
 	{
 		running = true;
-		reading->setText("Milk is out of the fridge");
+		reading->setText("Milk Status:\nMilk is out of the fridge");	
+		if (time_outoffridge >= 1 && running)
+		{
+
+			if (time_outoffridge == 1 && running)			//Displays countdown on QT
+			{
+				std::cout << "Message 1 sent" << std::endl;
+				//system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
+				message1->setStyleSheet("QLabel {background-color : red}");
+				running = false; //use this to stop this timer from re-triggering message 1 
+			}
+		 time_outoffridge--;
+		 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
 	}
-	else
+	else if (inVal <= fridgeTemp)
 	{
-		time_outoffridge = 20; //reset timer
-		//s = QString::number(time_outoffridge);
-		reading->setText("Milk temperature is OK");
+		time_outoffridge = 20; //reset timers
+		time_atroomtemp = 30;
+		reading->setText("Milk Status:\nMilk temperature is OK");
 		running = false;
 		running2 = false;
 	}
 
-	if (time_outoffridge >= 1 && running)
-	{
-	//	QString s = QString::number(time_outoffridge);
-	//	reading->setText(s);
-		if (time_outoffridge == 1 && running)			//Displays countdown on QT
-			{
-				system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
-				message1->setStyleSheet("QLabel {background-color : red}");
-				running = false; //use this to stop this timer from triggering message 1 
-			}
-	time_outoffridge--;
-	}
+
 
 	//-----------------------
-	// MESSAGE 2
+	// MESSAGE 2 & 3
 
-	if (inVal >= roomTempLow && inVal <= roomTempHigh)
+	if (inVal > roomTempLow && inVal <= roomTempHigh)
 	{
-		reading->setText("Milk is near room temperature");
+		reading->setText("Milk Status:\nMilk is near room temperature");
 		running2 = true;
-	}
-	if (time_atroomtemp >= 1   && running2)
-	{
-	//QString k = QString::number(time_atroomtemp);
-        //reading->setText(k);                    //Displays countdown on
-		if (time_atroomtemp == 25 && running2) //delay to allow temp tp settle 
+		if (time_atroomtemp >= 1 && running2)
 		{
-			system("./shellScript2.sh"); // run prowl$
-			message2->setStyleSheet("QLabel {background-color : red}");
+			if (time_atroomtemp == 25 && running2) //delay to allow temp tp settle 
+			{
+				std::cout << "Message 2 sent" << std::endl;
+				//system("./shellScript2.sh"); // run prowl$
+				message2->setStyleSheet("QLabel {background-color : red}");
+			}
+			else if (time_atroomtemp == 1 && running2)
+			{
+				std::cout << "Message 3 sent" << std::endl;
+				//system("./shellScript3.sh"); // run prowl$
+				message3->setStyleSheet("QLabel {background-color : red}");
+				running2 = false;
+			}
+		 time_atroomtemp--;
+		 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
-		else if (time_atroomtemp == 1 && running2)
-		{
-		 	system("./shellScript3.sh"); // run prowl$
-			message3->setStyleSheet("QLabel {background-color : red}");
-		}
-	 time_atroomtemp--;
 	}
+
 }
 
 
@@ -302,37 +305,22 @@ void Window::startCountdown()
 
 //Button1 function - Display Tf, Tm, Tr in deg. C
 // Return fridge temperature threshold in degC
-void Window::setFridgeDegC()
+void Window::setCelsius()
 {
 	isCelsius = true;
 	Tf = fridgeTemp;
-	return Tf;
-}
-
-//Button1 function - Display Tf, Tm, Tr in deg. C
-// Return room temperature threshold in degC
-void Window::setRoomDegC()
-{
-	isCelsius = true;
 	Tr = roomTempHigh;
+	return Tf;
 	return Tr;
 }
 
 //Button2 function - Display Tf, Tm, Tr in deg. F
 // Return fridge temperature threshold in degF
-void Window::setFridgeDegF()
+void Window::setFarenheit()
 {
 	isCelsius = false;
 	Tf = fridgeTemp*9/5 + 32;
-	return Tf;
-}
-
-//Button2 function - Display Tf, Tm, Tr in deg. F
-// Return room temperature threshold in degF
-void Window::setRoomDegF()
-{
-	isCelsius = false;
 	Tr = roomTempHigh*9/5 + 32;
+	return Tf;
 	return Tr;
 }
-

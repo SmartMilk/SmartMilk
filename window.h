@@ -1,6 +1,4 @@
 #//This file defines all the classes and objects used in window.cpp
-
-//for timer, trying to merge with timer-shutdown ( https://github.com/raymon1/timer-shutdown )
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -16,6 +14,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QPen>
+#include <QThread>
 
 class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 {
@@ -25,22 +24,20 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
 
-        const double fridgeTemp = 24.5; //temperature threshold for activating first message
-	const double roomTempLow = 26.5; //temperature threshold for activating second and third messags
+    const double fridgeTemp = 24.5; //temperature threshold for activating first message
+	const double roomTempLow = 26.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 27.0;
-	const double Tf = 24.5;
-	const double Tr = 27.0;
-        int time_outoffridge = 20;
-	int time_atroomtemp = 30; //countdown starting value, is currently placeholder 3 minutes
-        bool running = false;
+	double Tf = 24.5; //Fridge temp. threshold plotted on QT
+	double Tr = 27.0; //Room temp. threshold plotted on QT
+    int time_outoffridge = 20; //Countdown timer default values
+	int time_atroomtemp = 30; 
+    bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
 
  private slots:
-    void setFridgeDegC();  //Set the temperature to degrees C
-    void setRoomDegC();  //Set the temperature to degrees C
-    void setFridgeDegF();  //Set the temperature to degrees F
-    void setRoomDegF();  //Set the temperature to degrees F
+    void setCelsius();  //Set the temperatures to degrees C
+    void setFarenheit();  //Set the temperatures to degrees F
     void timerEvent(QTimerEvent *);
     void startCountdown();
 
