@@ -45,6 +45,7 @@ double tempreadbuster(double *a)
  {
   perror ("Couldn't open the w1 devices directory");
   return 1;
+  usleep(200000);
  }
 
         // Assemble path to OneWire device
@@ -124,10 +125,10 @@ Window::Window()
 
 	//Initialising timers
 
-	//QTimer       *timerP = new QTimer;
-	//	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
-	//	timerP->setInterval(500);
-	//	timerP->start();
+	timerP = new QTimer;
+	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
+	timerP->setInterval(1000);
+	timerP->start();
 
 	timerCD = new QTimer;
 	connect(timerCD, SIGNAL(timeout()), SLOT(startCountdown()));
@@ -171,13 +172,13 @@ void Window::createMessageBox()
 	// Message labels
 	// Dynamic user warning label. Inform user when T thresholds exceeded
 	reading = new QLabel;
-	reading->setText("OK")
+	reading->setText("OK");
 
 	// Static message labels
 	timer1status = new QLabel; //timer check labels, delete in final version
-	timer1status->setText("Timer 1 started")
+	timer1status->setText("Timer 1 started");
 	timer2status = new QLabel;
-	timer2status->setText("Timer 2 started")
+	timer2status->setText("Timer 2 started");
 
 	message1 = new QLabel;
 	message1->setText("Message 1 Sent");
@@ -276,7 +277,7 @@ void Window::startCountdown()
 				timer1status->setStyleSheet("QLabel {background-color: green}");
 				running = false; //use this to stop this timer from re-triggering message 1 
 			}
-		 time_outoffridge--;ing
+		 time_outoffridge--;
 		}
 	}
 	else if (inVal <= fridgeTemp)
@@ -309,7 +310,7 @@ void Window::startCountdown()
 				std::cout << "Message 2 sent" << std::endl;
 				//system("./shellScript2.sh"); // run prowl$
 				message2->setStyleSheet("QLabel {background-color : red}");
-				timer2status->setStyleSheet("QLabel {background-color: green}");
+//				timer2status->setStyleSheet("QLabel {background-color: green}");
 			}
 			else if (time_atroomtemp == 1 && running2)
 			{

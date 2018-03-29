@@ -23,7 +23,6 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
-
     const double fridgeTemp = 24.5; //temperature threshold for activating first message
 	const double roomTempLow = 26.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 27.0;
@@ -39,7 +38,7 @@ public:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
     void plotUpdate();
-	void startCountdown();
+    void startCountdown();
 
 private:
 	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
@@ -64,11 +63,12 @@ private:
 	QLabel       *message1;
 	QLabel	     *message2;
 	QLabel       *message3;
-	QLabel		 *timer1status;
+	QLabel	     *timer1status;
 	QLabel       *timer2status;
 	QPushButton  *Button1;
 	QPushButton  *Button2;
 	QTimer       *timerCD;
+	QTimer	     *timerP;
 	//QThread      *thread;
 
 	//The main Layout which will contain all the GUI elements
