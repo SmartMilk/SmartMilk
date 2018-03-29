@@ -24,23 +24,22 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
 
-        const double fridgeTemp = 24.5; //temperature threshold for activating first message
+    const double fridgeTemp = 24.5; //temperature threshold for activating first message
 	const double roomTempLow = 26.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 27.0;
 	double Tf = 24.5; //Fridge temp. threshold plotted on QT
 	double Tr = 27.0; //Room temp. threshold plotted on QT
-        int time_outoffridge = 20; //Countdown timer default values
+    int time_outoffridge = 20; //Countdown timer default values
 	int time_atroomtemp = 30;
-        bool running = false;
+    bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
 
  private slots:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
-    void timerEvent();
-    void startCountdown();
-
+    void plotUpdate();
+	void startCountdown();
 
 private:
 	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
@@ -48,6 +47,11 @@ private:
 	void createTempScale();  //This function creates celsius and farenheit push button GUIs
 	void createMessageBox();  //Creates a GUI slot for a countdown timer for sending Prowl Messages
 	void createTempCountdownVertSplit();   //Function splits the tempscale and countdown boxes vertically
+
+	//Qt Groups. Each group is created inside of its own function
+	QGroupBox *TempScale;
+	QGroupBox *MessageBox;
+	QGroupBox *TempCountdownVertSplit;
 
 	//Declaring pointers
 
@@ -60,13 +64,12 @@ private:
 	QLabel       *message1;
 	QLabel	     *message2;
 	QLabel       *message3;
+	QLabel		 *timer1status;
+	QLabel       *timer2status;
 	QPushButton  *Button1;
 	QPushButton  *Button2;
-
-	//Qt Groups. Each group is created inside of its own function
-	QGroupBox *TempScale;
-	QGroupBox *MessageBox;
-	QGroupBox *TempCountdownVertSplit;
+	QTimer       *timerCD;
+	//QThread      *thread;
 
 	//The main Layout which will contain all the GUI elements
 	QHBoxLayout  *mainLayout;  // horizontal layout
@@ -79,7 +82,6 @@ private:
 	double y1Data[plotDataSize];
 	double y2Data[plotDataSize];
 
-	bool flag;
 };
 
 #endif // WINDOW_H
