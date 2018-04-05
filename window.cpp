@@ -12,6 +12,23 @@
 #include <stdlib.h>
 #include <iostream> //testing purposes only
 
+/*Create each of the shell scripts*/
+#define shellScript1 "\
+#!/bin/bash \n\
+perl prowl1.pl \n\
+clear\
+"
+#define shellScript2 "\
+#!/bin/bash \n\
+perl prowl2.pl \n\
+clear\
+"
+#define shellScript3 "\
+#!/bin/bash \n\
+perl prowl3.pl \n\
+clear\
+"
+
 //#include <wiringPi.h>
 //#define BUFSIZE 256  //experiment with different buffer sizes
 //#define PIN RPI_GPIO_P1_12
@@ -35,7 +52,7 @@ double tempreadbuster(double *a)
   while ((dirent = readdir (dir)))
    // 1-wire devices are links beginning with 28-
    if (dirent->d_type == DT_LNK &&
-     strstr(dirent->d_name, "28-0317604cafff") != NULL) {
+     strstr(dirent->d_name, "28-0317607d35ff") != NULL) {
      strcpy(dev, dirent->d_name);
     printf("\nDevice: %s\n", dev);
    }
@@ -45,7 +62,6 @@ double tempreadbuster(double *a)
  {
   perror ("Couldn't open the w1 devices directory");
   return 1;
-  usleep(200000);
  }
 
         // Assemble path to OneWire device
@@ -73,6 +89,7 @@ double tempreadbuster(double *a)
   }
   close(fd);
  }
+ usleep (500000);
 }
 
 Window::Window()
@@ -112,7 +129,8 @@ Window::Window()
 
 	plot->replot();
 	plot->show();
-	//plot->setStyleSheet("QWidget {border-image: url(./pics/milkhasgonebad.png) }");
+	plot->setStyleSheet("QWidget {color: qlineargradient(spread:pad, x1:0 y1:0, x2:1 y2:0, stop:0 rgba(0,0,0,255), stop:1 rgba(255,255,255,255));"
+				      "background: qlineargradient(x1:0 y1:0, x2:1 y2:0, stop:0 cyan, stop:1 blue); }");
 
 	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("Data Index"));
 	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("Temperature"));
@@ -127,7 +145,7 @@ Window::Window()
 
 	timerP = new QTimer;
 	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
-	timerP->setInterval(1000);
+	timerP->setInterval(1100);
 	timerP->start();
 
 	timerCD = new QTimer;
@@ -216,20 +234,27 @@ void Window::plotUpdate()
 	if (isCelsius == false)
 	{
 		truput = inVal *9/5 + 32;
-		Tf = 24.5 *9/5 + 32;
-		Tr = 27.0 *9/5 + 32;
+		Tf = fridgeTemp *9/5 + 32;
+		Tr = roomTempHigh *9/5 + 32;
 		curve->setPen(QPen(Qt::green, 2));
 
 	}
 	else
 	{
 		truput = inVal;
-		Tf = 24.5;
-		Tr = 27.0;
+		Tf = fridgeTemp;
+		Tr = roomTempHigh;
 		curve->setPen(QPen(Qt::yellow, 2));
 	}
 
-
+	if (truput > 1000.0)
+	{
+	truput = truput/100 ;
+	}
+	if (truput > 100.0 && truput < 100.0)
+	{
+	truput = truput/10 ;
+	}
 
 	//Leaving this in as an option to set up an LED
 	//wiringPiSetup();			//Set up WiringPI library
@@ -265,26 +290,27 @@ void Window::startCountdown()
 	if (inVal > fridgeTemp && inVal <= roomTempLow) //These conditions will change in non-testing conditions
 	{
 		running = true;
-		reading->setText("Out of Fridge");
+		reading->setText("Milk out of Fridge");
 		if (time_outoffridge >= 1 && running)
 		{
 
 			if (time_outoffridge == 1 && running)			//Displays countdown on QT
 			{
 				std::cout << "Message 1 sent" << std::endl;
-				//system("./shellScript1.sh"); // run prowl1.pl through shell script from .cpp file
+				system(shellScript1); // run prowl1.pl through shell script from .cpp file
 				message1->setStyleSheet("QLabel {background-color : red}");
-				timer1status->setStyleSheet("QLabel {background-color: green}");
 				running = false; //use this to stop this timer from re-triggering message 1 
 			}
 		 time_outoffridge--;
+		 timer1status->setStyleSheet("QLabel {background-color: green}");
+
 		}
 	}
 	else if (inVal <= fridgeTemp)
 	{
-		time_outoffridge = 20; //reset timers
-		time_atroomtemp = 30;
-		reading->setText("OK");
+		time_outoffridge = 10; //reset timers
+		time_atroomtemp = 15;
+		reading->setText("Milk OK");
 		running = false;
 		running2 = false;
 		message1->setStyleSheet("QLabel {background-color : white}");
@@ -301,25 +327,26 @@ void Window::startCountdown()
 
 	if (inVal > roomTempLow && inVal <= roomTempHigh)
 	{
-		reading->setText("At room temp.");
+		reading->setText("Milk at room temp.");
 		running2 = true;
 		if (time_atroomtemp >= 1 && running2)
 		{
-			if (time_atroomtemp == 25 && running2) //delay to allow temp tp settle 
+			if (time_atroomtemp == 10 && running2) //delay to allow temp tp settle
 			{
 				std::cout << "Message 2 sent" << std::endl;
-				//system("./shellScript2.sh"); // run prowl$
+				system(shellScript2); // run prowl$
 				message2->setStyleSheet("QLabel {background-color : red}");
-//				timer2status->setStyleSheet("QLabel {background-color: green}");
 			}
 			else if (time_atroomtemp == 1 && running2)
 			{
 				std::cout << "Message 3 sent" << std::endl;
-				//system("./shellScript3.sh"); // run prowl$
+				system(shellScript3); // run prowl$
 				message3->setStyleSheet("QLabel {background-color : red}");
 				running2 = false;
 			}
 		 time_atroomtemp--;
+                 timer2status->setStyleSheet("QLabel {background-color: green}");
+
 		}
 	}
 
