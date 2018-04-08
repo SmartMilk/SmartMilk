@@ -1280,40 +1280,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </deviceset>
 </devicesets>
 </library>
-<library name="supply1" urn="urn:adsk.eagle:library:371">
-<description>&lt;b&gt;Supply Symbols&lt;/b&gt;&lt;p&gt;
- GND, VCC, 0V, +5V, -5V, etc.&lt;p&gt;
- Please keep in mind, that these devices are necessary for the
- automatic wiring of the supply signals.&lt;p&gt;
- The pin name defined in the symbol is identical to the net which is to be wired automatically.&lt;p&gt;
- In this library the device names are the same as the pin names of the symbols, therefore the correct signal names appear next to the supply symbols in the schematic.&lt;p&gt;
- &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-</packages>
-<symbols>
-<symbol name="VCC" urn="urn:adsk.eagle:symbol:26928/1" library_version="1">
-<wire x1="1.27" y1="-1.905" x2="0" y2="0" width="0.254" layer="94"/>
-<wire x1="0" y1="0" x2="-1.27" y2="-1.905" width="0.254" layer="94"/>
-<text x="-2.54" y="-2.54" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
-<pin name="VCC" x="0" y="-2.54" visible="off" length="short" direction="sup" rot="R90"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="VCC" urn="urn:adsk.eagle:component:26957/1" prefix="P+" library_version="1">
-<description>&lt;b&gt;SUPPLY SYMBOL&lt;/b&gt;</description>
-<gates>
-<gate name="VCC" symbol="VCC" x="0" y="0"/>
-</gates>
-<devices>
-<device name="">
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 </libraries>
 <attributes>
 </attributes>
@@ -1330,7 +1296,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </part>
 <part name="R1" library="SparkFun-Resistors" library_urn="urn:adsk.eagle:library:532" deviceset="RESISTOR" device="AXIAL-0.3" package3d_urn="urn:adsk.eagle:package:39658/1" value="4K7"/>
 <part name="GND1" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="GND2" device="" value="GND"/>
-<part name="21E12E3" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -1341,7 +1306,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="U1" gate="G$1" x="12.7" y="63.5" rot="MR0"/>
 <instance part="R1" gate="G$1" x="38.1" y="91.44" rot="R270"/>
 <instance part="GND1" gate="G$1" x="35.56" y="10.16"/>
-<instance part="21E12E3" gate="VCC" x="116.84" y="109.22"/>
 </instances>
 <busses>
 </busses>
@@ -1388,14 +1352,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="50.8" y1="17.78" x2="45.72" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="17.78" x2="35.56" y2="17.78" width="0.1524" layer="91"/>
 <junction x="35.56" y="17.78"/>
-</segment>
-</net>
-<net name="VCC" class="0">
-<segment>
-<pinref part="J1" gate="G$1" pin="GP5"/>
-<pinref part="21E12E3" gate="VCC" pin="VCC"/>
-<wire x1="88.9" y1="71.12" x2="116.84" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="71.12" x2="116.84" y2="106.68" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
