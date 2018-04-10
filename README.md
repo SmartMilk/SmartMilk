@@ -18,14 +18,11 @@ git clone https://github.com/SmartMilk/SmartMilk.git
 To make the smartphone notification subsystem executable:
 ```
 cd SmartMilk
-cd Prowl_Scripts
 sudo chmod u+x prowl1.pl prowl2.pl prowl3.pl
-sudo chmod 755 shellScript1.sh shellScript2.sh shellScript3.sh
 ```
 
-Go back to your home directory (type `cd`). Now build the main software by typing:
+Now build the main software by typing:
 ```
-cd SmartMilk
 qmake
 make
 ```
