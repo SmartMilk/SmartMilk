@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QPen>
 #include <QThread>
+#include <QSplashScreen>
 
 class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 {
@@ -23,6 +24,7 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 
 public:
 	Window(); // default constructor - called when a Window is declared without arguments
+	~Window();
     const double fridgeTemp = 25.0; //temperature threshold for activating first message
 	const double roomTempLow = 27.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 28.0;

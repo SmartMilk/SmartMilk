@@ -1,12 +1,19 @@
 #include <window.h>
 #include <QApplication>
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
         QApplication app(argc, argv);
+	QPixmap pixmap ("./pics/logo.jpg");
+	QSplashScreen splash (pixmap);
+	splash.show();
+	app.processEvents();
+	usleep(3000000);
         // create the window
         Window window;
         window.showMaximized();
+	splash.finish(&window);
 
 //		QThread thread;
 //		QObject::connect(&thread, SIGNAL(started()), &window, SLOT(plotUpdate()));
