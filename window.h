@@ -39,7 +39,7 @@ public:
  private slots:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
-    void plotUpdate( QTimerEvent *);
+    void plotUpdate();
     void startCountdown();
 
 private:

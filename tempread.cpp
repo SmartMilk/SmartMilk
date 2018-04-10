@@ -11,7 +11,7 @@ void Tempread::run() //temperature reading function adapted from: http://bradsrp
 	char buf[256];
 	int fd = -1;
 	char *temp;
-	double value;
+	double value = 0.0;
 
 	runningX = true;
 	while (runningX)
@@ -31,11 +31,8 @@ void Tempread::run() //temperature reading function adapted from: http://bradsrp
 
 		value = atof(temp) / 1000;
 
-		printf("Device: %s  - ", dev);
-		printf("Temp: %.3f C  ", value / 1000);
-		printf("%.3f F\n\n", (value / 1000) * 9 / 5 + 32);
-
-		double defInput = value; 
+		defInput = value;
+		close(fd);
 	}
 }
 

@@ -61,10 +61,10 @@ Window::Window()
 
 	//Initialising timers
 
-	//timerP = new QTimer;
-	//connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
-	//timerP->setInterval(500);
-	//timerP->start();
+	timerP = new QTimer;
+	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
+	timerP->setInterval(500);
+	timerP->start();
 
 	timerCD = new QTimer;
 	connect(timerCD, SIGNAL(timeout()), SLOT(startCountdown()));
@@ -158,7 +158,7 @@ void Window::createTempCountdownVertSplit()
 
 }
 
-void Window::plotUpdate(QTimerEvent *)
+void Window::plotUpdate()
 {
 	double inVal = t.signalData();
 	//double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
@@ -211,7 +211,7 @@ void Window::startCountdown()
   //	second  timer activates when milk approaches room tempterature, sending messages 2 and 3
 	//double a;
 	double inVal = t.signalData(); //intake values for temp.
-
+//	double inVal2 = 0.0;
 	//-------------------------
 	// MESSAGE 1
 
@@ -225,7 +225,7 @@ void Window::startCountdown()
 			if (time_outoffridge == 1 && running)			//Displays countdown on QT
 			{
 				std::cout << "Message 1 sent" << std::endl;
-				system(shellScript1); // run prowl1.pl through shell script from .cpp file
+				//system(shellScript1); // run prowl1.pl through shell script from .cpp file
 				message1->setStyleSheet("QLabel {background-color : red}");
 				running = false; //use this to stop this timer from re-triggering message 1 
 			}
@@ -262,13 +262,13 @@ void Window::startCountdown()
 			if (time_atroomtemp == 10 && running2) //delay to allow temp tp settle
 			{
 				std::cout << "Message 2 sent" << std::endl;
-				system(shellScript2); // run prowl$
+				//system(shellScript2); // run prowl$
 				message2->setStyleSheet("QLabel {background-color : red}");
 			}
 			else if (time_atroomtemp == 1 && running2)
 			{
 				std::cout << "Message 3 sent" << std::endl;
-				system(shellScript3); // run prowl$
+				//system(shellScript3); // run prowl$
 				message3->setStyleSheet("QLabel {background-color : red}");
 				running2 = false;
 			}

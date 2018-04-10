@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 //		thread.start();
 
         // call the window.timerEvent function every _ms
-    window.startTimer(50);
+//    window.startTimer(500);
         // execute the application
     return app.exec();
 }
