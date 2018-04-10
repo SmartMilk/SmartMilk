@@ -14,8 +14,8 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QPen>
-#include <QThread>
 #include <QSplashScreen>
+#include "tempread.h"
 
 class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 {
@@ -23,8 +23,8 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 	Q_OBJECT
 
 public:
-	Window(); // default constructor - called when a Window is declared without arguments
-	~Window();
+	Window(); // class constructor
+	~Window(); //class destructor
     const double fridgeTemp = 25.0; //temperature threshold for activating first message
 	const double roomTempLow = 27.5; //temperature threshold for activating second and third messages
 	const double roomTempHigh = 28.0;
@@ -39,7 +39,7 @@ public:
  private slots:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
-    void plotUpdate();
+    void plotUpdate( QTimerEvent *);
     void startCountdown();
 
 private:
@@ -71,7 +71,6 @@ private:
 	QPushButton  *Button2;
 	QTimer       *timerCD;
 	QTimer	     *timerP;
-	//QThread      *thread;
 
 	//The main Layout which will contain all the GUI elements
 	QHBoxLayout  *mainLayout;  // horizontal layout
@@ -83,7 +82,25 @@ private:
 	double yData[plotDataSize];
 	double y1Data[plotDataSize];
 	double y2Data[plotDataSize];
+	tempread t; // temperature reading thread
 
 };
 
 #endif // WINDOW_H
+
+/*Create each of the shell scripts*/
+#define shellScript1 "\
+#!/bin/bash \n\
+perl prowl1.pl \n\
+clear\
+"
+#define shellScript2 "\
+#!/bin/bash \n\
+perl prowl2.pl \n\
+clear\
+"
+#define shellScript3 "\
+#!/bin/bash \n\
+perl prowl3.pl \n\
+clear\
+"

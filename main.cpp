@@ -1,18 +1,21 @@
 #include <window.h>
 #include <QApplication>
 #include <unistd.h>
+#include <tempread.h>
 
 int main(int argc, char *argv[])
 {
-        QApplication app(argc, argv);
+    QApplication app(argc, argv);
+	//create splash screen
 	QPixmap pixmap ("./pics/logo.jpg");
 	QSplashScreen splash (pixmap);
 	splash.show();
 	app.processEvents();
 	usleep(3000000);
-        // create the window
-        Window window;
-        window.showMaximized();
+    // create the window
+    Window window;
+    window.showMaximized();
+	//close splash screen
 	splash.finish(&window);
 
 //		QThread thread;
@@ -24,7 +27,7 @@ int main(int argc, char *argv[])
 //		thread.start();
 
         // call the window.timerEvent function every _ms
-       //window.startTimer(10);
+    window.startTimer(50);
         // execute the application
-        return app.exec();
+    return app.exec();
 }

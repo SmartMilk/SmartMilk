@@ -1,96 +1,14 @@
 #include "window.h"
+#include "tempread.h"
 #include <QtGui>
-#include <dirent.h>
-#include <string.h>
 #include <QFont>
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
-#include <stdlib.h>
 #include <iostream> //testing purposes only
 
-/*Create each of the shell scripts*/
-#define shellScript1 "\
-#!/bin/bash \n\
-perl prowl1.pl \n\
-clear\
-"
-#define shellScript2 "\
-#!/bin/bash \n\
-perl prowl2.pl \n\
-clear\
-"
-#define shellScript3 "\
-#!/bin/bash \n\
-perl prowl3.pl \n\
-clear\
-"
-
-//#include <wiringPi.h>
 //#define BUFSIZE 256  //experiment with different buffer sizes
-//#define PIN RPI_GPIO_P1_12
 
-//temperature reading function
-double tempreadbuster(double *a)
-{
-
- DIR *dir;
- struct dirent *dirent;
- char dev[16];      // Dev ID
- char devPath[128]; // Path to device
- char buf[256];     // Data from device
- char tmpData[6];   // Temp C * 1000 reported by device
- char path[] = "/sys/bus/w1/devices";
- ssize_t numRead;
-
- dir = opendir (path);
- if (dir != NULL)
- {
-  while ((dirent = readdir (dir)))
-   // 1-wire devices are links beginning with 28-
-   if (dirent->d_type == DT_LNK &&
-     strstr(dirent->d_name, "28-0317607d35ff") != NULL) {
-     strcpy(dev, dirent->d_name);
-    printf("\nDevice: %s\n", dev);
-   }
-        (void) closedir (dir);
-        }
- else
- {
-  perror ("Couldn't open the w1 devices directory");
-  return 1;
- }
-
-        // Assemble path to OneWire device
- sprintf(devPath, "%s/%s/w1_slave", path, dev);
- // Read temp continuously
- // Opening the device's file triggers new reading
- while(1) {
-  int fd = open(devPath, O_RDONLY);
-  if(fd == -1)
-  {
-   perror ("Couldn't open the w1 device.");
-   return 1;
-  }
-  while((numRead = read(fd, buf, 256)) > 0)
-  {
-   strncpy(tmpData, strstr(buf, "t=") + 2, 5);
-   double tempC = strtof(tmpData, NULL);
-   printf("Device: %s  - ", dev);
-   printf("Temp: %.3f C  ", tempC / 1000);
-   printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
-
- *a = tempC / 1000;
-  double result = *a;
-  return result;
-  }
-  close(fd);
- }
- usleep (500000);
-}
 
 Window::Window()
 // Function calls upon the window header and continues to define elements
@@ -113,7 +31,7 @@ Window::Window()
 	curve = new QwtPlotCurve;
 	curve->setPen(QPen(Qt::yellow, 2));
 	curve1 = new QwtPlotCurve;
-        curve1->setPen(QPen(Qt::blue,2));
+    curve1->setPen(QPen(Qt::blue,2));
 	curve2 = new QwtPlotCurve;
 	curve2->setPen(QPen(Qt::red,2));
 	plot = new QwtPlot;
@@ -122,9 +40,9 @@ Window::Window()
 	curve->setSamples(xData, yData, plotDataSize);
 	curve->attach(plot);
 	curve1->setSamples(xData, y1Data, plotDataSize);
-        curve1->attach(plot);
+    curve1->attach(plot);
 	curve2->setSamples(xData, y2Data, plotDataSize);
-        curve2->attach(plot);
+    curve2->attach(plot);
 
 
 	plot->replot();
@@ -143,21 +61,24 @@ Window::Window()
 
 	//Initialising timers
 
-	timerP = new QTimer;
-	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
-	timerP->setInterval(1000);
-	timerP->start();
+	//timerP = new QTimer;
+	//connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
+	//timerP->setInterval(500);
+	//timerP->start();
 
 	timerCD = new QTimer;
 	connect(timerCD, SIGNAL(timeout()), SLOT(startCountdown()));
 	timerCD->setInterval(1000);
 	timerCD->start();
 
+	t.start(); //start tempread thread
+
+
 }
 
 void Window::~Window()
 {
-
+	t.quit();
 }
 
 void Window::createTempScale()
@@ -237,50 +158,50 @@ void Window::createTempCountdownVertSplit()
 
 }
 
-void Window::plotUpdate()
+void Window::plotUpdate(QTimerEvent *)
 {
-//	double a;
-//	double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
-//	double truput; //resulting output
-//	if (isCelsius == false)
-//	{
-//		truput = inVal *9/5 + 32;
-//		Tf = fridgeTemp *9/5 + 32;
-//		Tr = roomTempHigh *9/5 + 32;
-//		curve->setPen(QPen(Qt::green, 2));
-//
-//	}
-//	else
-//	{
-//		truput = inVal;
-//		Tf = fridgeTemp;
-//		Tr = roomTempHigh;
-//		curve->setPen(QPen(Qt::yellow, 2));
-//	}
-//
-//	if (truput > 1000.0)
-//	{
-//	truput = truput/100 ;
-//	}
-//	if (truput > 100.0 && truput < 100.0)
-//	{
-//	truput = truput/10 ;
-//	}
+	double inVal = t.signalData();
+	//double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
+	double truput; //resulting QT y data point
+	if (isCelsius == false)
+	{
+		truput = inVal *9/5 + 32;
+		Tf = fridgeTemp *9/5 + 32;
+		Tr = roomTempHigh *9/5 + 32;
+		curve->setPen(QPen(Qt::green, 2));
+
+	}
+	else
+	{
+		truput = inVal;
+		Tf = fridgeTemp;
+		Tr = roomTempHigh;
+		curve->setPen(QPen(Qt::yellow, 2));
+	}
+
+	if (truput > 1000.0)
+	{
+	truput = truput/100 ;
+	}
+	if (truput > 100.0 && truput < 100.0)
+	{
+	truput = truput/10 ;
+	}
 
 	//Add new reading to the plot
-//	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
-//	memmove(y1Data, y1Data + 1, (plotDataSize -1) *sizeof(double));
-//	memmove(y2Data, y2Data + 1, (plotDataSize -1) *sizeof(double));
-//	yData[plotDataSize - 1] = truput;
-//	y1Data[plotDataSize -1] = Tf;
-//	y2Data[plotDataSize -1] = Tr;
+	memmove(yData, yData + 1, (plotDataSize - 1) * sizeof(double));
+	memmove(y1Data, y1Data + 1, (plotDataSize -1) *sizeof(double));
+	memmove(y2Data, y2Data + 1, (plotDataSize -1) *sizeof(double));
+	yData[plotDataSize - 1] = truput;
+	y1Data[plotDataSize -1] = Tf;
+	y2Data[plotDataSize -1] = Tr;
 
 
-//	curve->setSamples(xData, yData, plotDataSize);
-//	curve1->setSamples(xData,y1Data, plotDataSize);
-//	curve2->setSamples(xData,y2Data, plotDataSize);
-//	plot->replot();
-//	printf("%.3f C\n", truput); //Print current temperature in terminal
+	curve->setSamples(xData, yData, plotDataSize);
+	curve1->setSamples(xData,y1Data, plotDataSize);
+	curve2->setSamples(xData,y2Data, plotDataSize);
+	plot->replot();
+	printf("%.3f C\n", truput); //Print current temperature in terminal
 
 }
 
@@ -288,8 +209,8 @@ void Window::startCountdown()
 {
   // 2 timers to activate prowl messages: first timer activates when milk is out of fridge, sending message 1
   //	second  timer activates when milk approaches room tempterature, sending messages 2 and 3
-	double a;
-	double inVal = tempreadbuster(&a); //intake values for temp.
+	//double a;
+	double inVal = t.signalData(); //intake values for temp.
 
 	//-------------------------
 	// MESSAGE 1

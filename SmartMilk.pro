@@ -8,4 +8,6 @@ lessThan(QT_MAJOR_VERSION, 5): LIBS += -lqwt -lm
 
 SOURCES += window.cpp
 SOURCES += main.cpp
+SOURCES += tempread.cpp
 HEADERS += window.h
+HEADERS += tempread.h
