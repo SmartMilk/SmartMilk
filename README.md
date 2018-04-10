@@ -1,3 +1,5 @@
+![](https://github.com/SmartMilk/SmartMilk/blob/master/pics/logo.jpg)
+
 # SmartMilk: an automated milk monitoring system
  
 SmartMilk is a simple temperature dependent system for monitoring the condition of your milk. When milk has been left out of the fridge SmartMilk will notify the users smartphone of the condition of their milk over time, to help prevent the need for disposing of spoiled milk. 
