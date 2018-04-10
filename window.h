@@ -82,7 +82,7 @@ private:
 	double yData[plotDataSize];
 	double y1Data[plotDataSize];
 	double y2Data[plotDataSize];
-	tempread t; // temperature reading thread
+	Tempread t; // temperature reading thread
 
 };
 

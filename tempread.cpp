@@ -1,6 +1,6 @@
 #include "tempread.h"
 #include <QDebug>
-
+using namespace std;
 
 double defInput = 0.0;
 double tempC = 0.0;
@@ -21,7 +21,7 @@ void Tempread::run() //temperature reading function adapted from: http://bradsrp
 	dir = opendir(path);
 
 	runningX = true;
-	while (running)
+	while (runningX)
 	{
 
 
@@ -39,27 +39,27 @@ void Tempread::run() //temperature reading function adapted from: http://bradsrp
 		else
 		{
 			perror("Couldn't open the w1 devices directory");
-			return 1;
+		//	return 1;
 		}
 
 		// Assemble path to OneWire device
 		sprintf(devPath, "%s/%s/w1_slave", path, dev);
 		// Read temp continuously
 		// Opening the device's file triggers new reading
-		while (1) {
+	//	while (1) {
 			int fd = open(devPath, O_RDONLY);
 			if (fd == -1)
 			{
 				perror("Couldn't open the w1 device.");
-				return 1;
+		//		return NULL;
 			}
 			while ((numRead = read(fd, buf, 256)) > 0)
 			{
 				strncpy(tmpData, strstr(buf, "t=") + 2, 5);
 				double tempC = strtof(tmpData, NULL);
-				// printf("Device: %s  - ", dev);
-				// printf("Temp: %.3f C  ", tempC / 1000);
-				// printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
+				 printf("Device: %s  - ", dev);
+				 printf("Temp: %.3f C  ", tempC / 1000);
+				 printf("%.3f F\n\n", (tempC / 1000) * 9 / 5 + 32);
 			//new format:
 				defInput = tempC / 1000; //defining temperature reading input
 
@@ -69,12 +69,12 @@ void Tempread::run() //temperature reading function adapted from: http://bradsrp
 				//	return result;
 			}
 			close(fd);
-		}
+		//}
 		//usleep(500000);
 	}
 }
 
-void Tempread::quit()
+void Tempread::finish()
 {
 	runningX = false;
 	exit(0);

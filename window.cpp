@@ -31,7 +31,7 @@ Window::Window()
 	curve = new QwtPlotCurve;
 	curve->setPen(QPen(Qt::yellow, 2));
 	curve1 = new QwtPlotCurve;
-    curve1->setPen(QPen(Qt::blue,2));
+        curve1->setPen(QPen(Qt::blue,2));
 	curve2 = new QwtPlotCurve;
 	curve2->setPen(QPen(Qt::red,2));
 	plot = new QwtPlot;
@@ -40,9 +40,9 @@ Window::Window()
 	curve->setSamples(xData, yData, plotDataSize);
 	curve->attach(plot);
 	curve1->setSamples(xData, y1Data, plotDataSize);
-    curve1->attach(plot);
+        curve1->attach(plot);
 	curve2->setSamples(xData, y2Data, plotDataSize);
-    curve2->attach(plot);
+        curve2->attach(plot);
 
 
 	plot->replot();
@@ -76,7 +76,7 @@ Window::Window()
 
 }
 
-void Window::~Window()
+Window::~Window()
 {
 	t.quit();
 }

@@ -15,7 +15,7 @@ public:
 
 	Tempread() {runningX = 0;};//default constructor
 	void run();
-	void quit();
+	void finish();
 	double signalData();
 
 private:
