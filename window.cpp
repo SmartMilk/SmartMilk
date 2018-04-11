@@ -5,16 +5,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <iostream> //testing purposes only
-
-//#define BUFSIZE 256  //experiment with different buffer sizes
+#include <iostream> 
 
 
-Window::Window()
-// Function calls upon the window header and continues to define elements
+Window::Window() //constructor
 {
 	//These functions creates all the GUI elements except the main Layout
-
 	createTempScale();
 	createMessageBox();
 	createTempCountdownVertSplit();
@@ -29,11 +25,11 @@ Window::Window()
 	}
 
 	curve = new QwtPlotCurve;
-	curve->setPen(QPen(Qt::yellow, 2));
+	curve->setPen(QPen(Qt::yellow, 2)); //temperature plot
 	curve1 = new QwtPlotCurve;
-        curve1->setPen(QPen(Qt::blue,2));
+        curve1->setPen(QPen(Qt::blue,2)); //fridge threshold plot
 	curve2 = new QwtPlotCurve;
-	curve2->setPen(QPen(Qt::red,2));
+	curve2->setPen(QPen(Qt::red,2)); //room temperature plot
 	plot = new QwtPlot;
 
 	//Make a plot curve from the data and attach it to the plot
@@ -49,6 +45,7 @@ Window::Window()
 	plot->show();
 	plot->setStyleSheet("QWidget {color: qlineargradient(spread:pad, x1:0 y1:0, x2:1 y2:0, stop:0 rgba(0,0,0,255), stop:1 rgba(255,255,255,255));"
 				      "background: qlineargradient(x1:0 y1:0, x2:1 y2:0, stop:0 lightGray , stop:1 darkGray); }");
+	//^ gives a nice gradient colour background (light -> dark gray)
 
 	plot->setAxisTitle(QwtPlot::xBottom, QString::fromUtf8("Data Index"));
 	plot->setAxisTitle(QwtPlot::yLeft, QString::fromUtf8("Temperature"));
@@ -60,6 +57,8 @@ Window::Window()
 	setLayout(mainLayout);
 
 	//Initialising timers
+	//timerP: controls when the plotUpdate function is executed (every 500ms)
+	//timerCD: controls when the startCountdown function is executed (every 1000ms) 
 
 	timerP = new QTimer;
 	connect(timerP, SIGNAL(timeout()), SLOT(plotUpdate()));
@@ -76,17 +75,17 @@ Window::Window()
 
 }
 
-Window::~Window()
+Window::~Window() //destructor
 {
-	t.quit();
+	t.quit(); //terminates tempread thread
 }
 
-void Window::createTempScale()
+void Window::createTempScale() //Creates buttons which switch temperature plot from celsius to farenheit and vice versa
 {
 
 	TempScale = new QGroupBox(tr("Temperature Scale"));
 
-	TempScale->setStyleSheet("background-color: pink"); //placeholder background
+	TempScale->setStyleSheet("background-color: pink"); //background
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QPushButton *Button1 = new QPushButton(tr("Celsius"));
@@ -99,7 +98,7 @@ void Window::createTempScale()
 
 	//Functionality of Button1
 	connect(Button1, SIGNAL(clicked()), SLOT(setCelsius()));
-	// Functionality of Button2
+	//Functionality of Button2
 	connect(Button2, SIGNAL(clicked()), SLOT(setFarenheit()));
 
 	//Button colours
@@ -109,11 +108,11 @@ void Window::createTempScale()
 }
 
 
-void Window::createMessageBox()
+void Window::createMessageBox() //status indicators for milk and messages, these light up red when a message has been sent
 {
 
 	MessageBox = new QGroupBox(tr("User Messages"));
-	MessageBox->setStyleSheet("background-color: pink"); //Placeholder Background
+	MessageBox->setStyleSheet("background-color: pink"); //Background
 	QVBoxLayout *layout = new QVBoxLayout;
 
 	// Message labels
@@ -147,7 +146,7 @@ void Window::createMessageBox()
 
 }
 
-void Window::createTempCountdownVertSplit()
+void Window::createTempCountdownVertSplit() //separates the status box from the temperature scale box vertically
 {
 
 	TempCountdownVertSplit = new QGroupBox(tr("SmartMilk Monitor"));
@@ -158,11 +157,12 @@ void Window::createTempCountdownVertSplit()
 
 }
 
-void Window::plotUpdate()
+void Window::plotUpdate() //controls each new plot point of temperature
 {
-	double inVal = t.signalData();
-	//double inVal = tempreadbuster(&a);	//inVal takes the temperature's value from the test function
+	double inVal = t.signalData(); //intakes the temperature value from the tempread class
 	double truput; //resulting QT y data point
+	
+	//changing temperature depending on whether the celsius or farenheit buttons have been clicked (default: celsius)
 	if (isCelsius == false)
 	{
 		truput = inVal *9/5 + 32;
@@ -178,7 +178,9 @@ void Window::plotUpdate()
 		Tr = roomTempHigh;
 		curve->setPen(QPen(Qt::yellow, 2));
 	}
-
+	
+	
+	//sometimes the temperature value scales by a factor of 10 or 100, these if statements corrects this error
 	if (truput > 1000.0)
 	{
 	truput = truput/100 ;
@@ -209,13 +211,11 @@ void Window::startCountdown()
 {
   // 2 timers to activate prowl messages: first timer activates when milk is out of fridge, sending message 1
   //	second  timer activates when milk approaches room tempterature, sending messages 2 and 3
-	//double a;
 	double inVal = t.signalData(); //intake values for temp.
-//	double inVal2 = 0.0;
 	//-------------------------
 	// MESSAGE 1
 
-	if (inVal > fridgeTemp && inVal <= roomTempLow) //These conditions will change in non-testing conditions
+	if (inVal > fridgeTemp && inVal <= roomTempLow) 
 	{
 		running = true;
 		reading->setText("Milk out of Fridge");
