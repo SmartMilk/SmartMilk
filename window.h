@@ -31,8 +31,8 @@ public:
 	const double roomTempHigh = 28.0;
 	double Tf = 25.0; //Fridge temp. threshold plotted on QT
 	double Tr = 28.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 10; //Countdown timer default values
-	int time_atroomtemp = 15;
+    int time_outoffridge = 70; //Countdown timer default values
+	int time_atroomtemp = 85;
     bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
@@ -66,14 +66,14 @@ private:
 	QLabel       *message1;
 	QLabel	     *message2;
 	QLabel       *message3;
-	//QLabel	 *timer1status;
-	//QLabel     *timer2status;
 	QPushButton  *Button1;
 	QPushButton  *Button2;
 	QTimer       *timerCD;
 	QTimer	     *timerP;
 	QTime        *timer1;
 	QLabel       *timer1label;
+	QTime        *timer2;
+	QLabel       *timer2label;
 
 	//The main Layout which will contain all the GUI elements
 	QHBoxLayout  *mainLayout;  // horizontal layout
@@ -85,8 +85,8 @@ private:
 	double yData[plotDataSize];
 	double y1Data[plotDataSize];
 	double y2Data[plotDataSize];
-	
-	Tempread t; // temperature reading Qthread 
+
+	Tempread t; // temperature reading Qthread
 
 };
 

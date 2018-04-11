@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <iostream> 
+#include <iostream>
 
 
 Window::Window() //constructor
@@ -120,17 +120,16 @@ void Window::createMessageBox() //status indicators for milk and messages, these
 	reading = new QLabel;
 	reading->setText("OK");
 
-	// Static message labels
-	//timer1status = new QLabel; //timer check labels, delete in final version
-	//timer1status->setText("Timer 1 started");
-	//timer2status = new QLabel;
-	//timer2status->setText("Timer 2 started");
-
-	//QTime countdown (timer 1 only just now)
-	timer1 = new QTime(0, 0, 10);
+	//QTime countdown
+	timer1 = new QTime(0, 1, 10);
 	timer1label = new QLabel;
-	timer1label->setText(timer1.toString());
+	timer1label->setText(timer1->toString());
 
+	timer2 = new QTime(0, 1, 15);
+	timer2label = new QLabel;
+	timer2label->setText(timer2->toString());
+
+	//message indicators
 	message1 = new QLabel;
 	message1->setText("Message 1 Sent");
 	message2 = new QLabel;
@@ -138,11 +137,18 @@ void Window::createMessageBox() //status indicators for milk and messages, these
 	message3 = new QLabel;
 	message3->setText("Message 3 Sent");
 
+	reading->setStyleSheet("QLabel {background-color : white}");
+	timer1label->setStyleSheet("QLabel {background-color : white}");
+	timer2label->setStyleSheet("QLabel {background-color : white}");
+	message1->setStyleSheet("QLabel {background-color : white}");
+	message2->setStyleSheet("QLabel {background-color : white}");
+	message3->setStyleSheet("QLabel {background-color : white}");
+
+
 	// Set layout for each label
 	layout->addWidget(reading);
 	layout->addWidget(timer1label);
-	//layout->addWidget(timer1);
-	//layout->addWidget(timer2);
+	layout->addWidget(timer2label);
 	layout->addWidget(message1);
 	layout->addWidget(message2);
 	layout->addWidget(message3);
@@ -167,7 +173,7 @@ void Window::plotUpdate() //controls each new plot point of temperature
 {
 	double inVal = t.signalData(); //intakes the temperature value from the tempread class
 	double truput; //resulting QT y data point
-	
+
 	//changing temperature depending on whether the celsius or farenheit buttons have been clicked (default: celsius)
 	if (isCelsius == false)
 	{
@@ -184,8 +190,7 @@ void Window::plotUpdate() //controls each new plot point of temperature
 		Tr = roomTempHigh;
 		curve->setPen(QPen(Qt::yellow, 2));
 	}
-	
-	
+
 	//sometimes the temperature value scales by a factor of 10 or 100, these if statements corrects this error
 	if (truput > 1000.0)
 	{
@@ -225,10 +230,16 @@ void Window::startCountdown()
 	//-------------------------
 	// MESSAGE 1
 
-	if (inVal > fridgeTemp && inVal <= roomTempLow) 
+	if (inVal > fridgeTemp && inVal <= roomTempLow)
 	{
 		running = true;
 		reading->setText("Milk out of Fridge");
+
+		running2 = false;
+                timer2->setHMS(0,1,15);
+                timer2label->setText(timer2->toString());
+                timer2label->setStyleSheet("QLabel {background-color : white}");
+
 		if (time_outoffridge >= 1 && running)
 		{
 
@@ -237,34 +248,29 @@ void Window::startCountdown()
 				std::cout << "Message 1 sent" << std::endl;
 				//system(shellScript1); // run prowl1.pl through shell script from .cpp file
 				message1->setStyleSheet("QLabel {background-color : red}");
-				timer1label->setStyleSheet("QLabel {background-color : green}")
-				running = false; //use this to stop this timer from re-triggering message 1 
+				timer1label->setStyleSheet("QLabel {background-color : yellow}");
+				running = false; //use this to stop this timer from re-triggering message 1
 
 			}
-		 
-			
+
 		time_outoffridge--;
-		timer1->addSecs(-1);
-		timer1label->setText(timer1.toString());
-		 //timer1status->setStyleSheet("QLabel {background-color: green}");
+		timer1->setHMS(0, timer1->addSecs (-1).minute (), timer1->addSecs (-1).second());
+		timer1label->setText(timer1->toString());
 
 		}
 	}
 	else if (inVal <= fridgeTemp)
 	{
-		time_outoffridge = 10; //reset timers
-		time_atroomtemp = 15;
+		time_outoffridge = 70; //reset timers
+		time_atroomtemp = 85;
 		reading->setText("Milk OK");
 		running = false;
-		running2 = false;
 		message1->setStyleSheet("QLabel {background-color : white}");
 		message2->setStyleSheet("QLabel {background-color : white}");
 		message3->setStyleSheet("QLabel {background-color : white}");
-		timer1(0, 0, 10);
-		timer1label->setText(timer1.toString());
-		
+		timer1->setHMS(0,1,10);
+		timer1label->setText(timer1->toString());
 		timer1label->setStyleSheet("QLabel {background-color : white}");
-		//timer2status->setStyleSheet("QLabel {background-color : white}");
 	}
 
 
@@ -283,16 +289,20 @@ void Window::startCountdown()
 				std::cout << "Message 2 sent" << std::endl;
 				//system(shellScript2); // run prowl$
 				message2->setStyleSheet("QLabel {background-color : red}");
+				timer2label->setStyleSheet("QLabel {background-color : yellow}");
 			}
 			else if (time_atroomtemp == 1 && running2)
 			{
 				std::cout << "Message 3 sent" << std::endl;
 				//system(shellScript3); // run prowl$
 				message3->setStyleSheet("QLabel {background-color : red}");
+				timer2label->setStyleSheet("QLabel {background-color : red}");
 				running2 = false;
 			}
 		 time_atroomtemp--;
-       //timer2status->setStyleSheet("QLabel {background-color: green}");
+                 timer2->setHMS(timer2->addSecs(-1).hour (), timer2->addSecs (-1).minute (), timer2->addSecs (-1).second());
+                 timer2label->setText(timer2->toString());
+
 
 		}
 	}
