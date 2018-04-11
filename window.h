@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QPen>
 #include <QSplashScreen>
+#include <QTime>
 #include "tempread.h"
 
 class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
@@ -30,9 +31,9 @@ public:
 	const double roomTempHigh = 28.0;
 	double Tf = 25.0; //Fridge temp. threshold plotted on QT
 	double Tr = 28.0; //Room temp. threshold plotted on QT
-    	int time_outoffridge = 10; //Countdown timer default values
+    int time_outoffridge = 10; //Countdown timer default values
 	int time_atroomtemp = 15;
-    	bool running = false;
+    bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
 
@@ -65,12 +66,14 @@ private:
 	QLabel       *message1;
 	QLabel	     *message2;
 	QLabel       *message3;
-	QLabel	     *timer1status;
-	QLabel       *timer2status;
+	//QLabel	 *timer1status;
+	//QLabel     *timer2status;
 	QPushButton  *Button1;
 	QPushButton  *Button2;
 	QTimer       *timerCD;
 	QTimer	     *timerP;
+	QTime        *timer1;
+	QLabel       *timer1label;
 
 	//The main Layout which will contain all the GUI elements
 	QHBoxLayout  *mainLayout;  // horizontal layout

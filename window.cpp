@@ -121,10 +121,15 @@ void Window::createMessageBox() //status indicators for milk and messages, these
 	reading->setText("OK");
 
 	// Static message labels
-	timer1status = new QLabel; //timer check labels, delete in final version
-	timer1status->setText("Timer 1 started");
-	timer2status = new QLabel;
-	timer2status->setText("Timer 2 started");
+	//timer1status = new QLabel; //timer check labels, delete in final version
+	//timer1status->setText("Timer 1 started");
+	//timer2status = new QLabel;
+	//timer2status->setText("Timer 2 started");
+
+	//QTime countdown (timer 1 only just now)
+	timer1 = new QTime(0, 0, 10);
+	timer1label = new QLabel;
+	timer1label->setText(timer1.toString());
 
 	message1 = new QLabel;
 	message1->setText("Message 1 Sent");
@@ -135,8 +140,9 @@ void Window::createMessageBox() //status indicators for milk and messages, these
 
 	// Set layout for each label
 	layout->addWidget(reading);
-	layout->addWidget(timer1status);
-	layout->addWidget(timer2status);
+	layout->addWidget(timer1label);
+	//layout->addWidget(timer1);
+	//layout->addWidget(timer2);
 	layout->addWidget(message1);
 	layout->addWidget(message2);
 	layout->addWidget(message3);
@@ -211,7 +217,11 @@ void Window::startCountdown()
 {
   // 2 timers to activate prowl messages: first timer activates when milk is out of fridge, sending message 1
   //	second  timer activates when milk approaches room tempterature, sending messages 2 and 3
+
+
 	double inVal = t.signalData(); //intake values for temp.
+
+
 	//-------------------------
 	// MESSAGE 1
 
@@ -227,10 +237,16 @@ void Window::startCountdown()
 				std::cout << "Message 1 sent" << std::endl;
 				//system(shellScript1); // run prowl1.pl through shell script from .cpp file
 				message1->setStyleSheet("QLabel {background-color : red}");
+				timer1label->setStyleSheet("QLabel {background-color : green}")
 				running = false; //use this to stop this timer from re-triggering message 1 
+
 			}
-		 time_outoffridge--;
-		 timer1status->setStyleSheet("QLabel {background-color: green}");
+		 
+			
+		time_outoffridge--;
+		timer1->addSecs(-1);
+		timer1label->setText(timer1.toString());
+		 //timer1status->setStyleSheet("QLabel {background-color: green}");
 
 		}
 	}
@@ -244,8 +260,11 @@ void Window::startCountdown()
 		message1->setStyleSheet("QLabel {background-color : white}");
 		message2->setStyleSheet("QLabel {background-color : white}");
 		message3->setStyleSheet("QLabel {background-color : white}");
-		timer1status->setStyleSheet("QLabel {background-color : white}");
-		timer2status->setStyleSheet("QLabel {background-color : white}");
+		timer1(0, 0, 10);
+		timer1label->setText(timer1.toString());
+		
+		timer1label->setStyleSheet("QLabel {background-color : white}");
+		//timer2status->setStyleSheet("QLabel {background-color : white}");
 	}
 
 
@@ -273,7 +292,7 @@ void Window::startCountdown()
 				running2 = false;
 			}
 		 time_atroomtemp--;
-                 timer2status->setStyleSheet("QLabel {background-color: green}");
+       //timer2status->setStyleSheet("QLabel {background-color: green}");
 
 		}
 	}
