@@ -30,17 +30,17 @@ public:
 	const double roomTempHigh = 28.0;
 	double Tf = 25.0; //Fridge temp. threshold plotted on QT
 	double Tr = 28.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 10; //Countdown timer default values
+    	int time_outoffridge = 10; //Countdown timer default values
 	int time_atroomtemp = 15;
-    bool running = false;
+    	bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
 
  private slots:
     void setCelsius();  //Set the temperatures to degrees C
     void setFarenheit();  //Set the temperatures to degrees F
-    void plotUpdate();
-    void startCountdown();
+    void plotUpdate(); //updates QT plot
+    void startCountdown(); //countdown to sending prowl messages
 
 private:
 	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
@@ -82,7 +82,8 @@ private:
 	double yData[plotDataSize];
 	double y1Data[plotDataSize];
 	double y2Data[plotDataSize];
-	Tempread t; // temperature reading thread
+	
+	Tempread t; // temperature reading Qthread 
 
 };
 
