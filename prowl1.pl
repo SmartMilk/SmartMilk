@@ -52,7 +52,7 @@ GetOptions(\%options, 'apikey=s', 'apikeyfile=s',
 $options{'apikeyfile'} ||= "prowlApiKey.txt";
 $options{'application'} ||= "SmartMilk";
 $options{'event'} ||= "Milk out of the fridge!";
-$options{'notification'} ||= "Your milk has been out of the fridge for 30 minutes. Please put it back.";
+$options{'notification'} ||= "Your milk has been out of the fridge for 15 minutes. Please put it back.";
 $options{'priority'} ||= 0;
 $options{'url'} ||= "";
 
