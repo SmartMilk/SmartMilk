@@ -31,11 +31,11 @@ make
 
 To run (assuming you are logged into the RPi over ssh and no X-server is running):
 ```
-startx ./SmartMilk
+startx ./SmartMilkApp
 ```
 
 or with X running:
 ```
-./SmartMilk
+./SmartMilkApp
 ```
 
