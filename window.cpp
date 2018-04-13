@@ -121,11 +121,11 @@ void Window::createMessageBox() //status indicators for milk and messages, these
 	reading->setText("OK");
 
 	//QTime countdown
-	timer1 = new QTime(0, 1, 10);
+	timer1 = new QTime(0, 0, 20);
 	timer1label = new QLabel;
 	timer1label->setText(timer1->toString());
 
-	timer2 = new QTime(0, 1, 15);
+	timer2 = new QTime(0, 0, 30);
 	timer2label = new QLabel;
 	timer2label->setText(timer2->toString());
 
@@ -236,17 +236,21 @@ void Window::startCountdown()
 		reading->setText("Milk out of Fridge");
 
 		running2 = false;
-                timer2->setHMS(0,1,15);
+		time_atroomtemp = 30;
+                timer2->setHMS(0,0,30);
                 timer2label->setText(timer2->toString());
                 timer2label->setStyleSheet("QLabel {background-color : white}");
+		message2 -> setStyleSheet("QLabel {background-color : white}");
+		message3 -> setStyleSheet("QLabel {background-color : white}");
+
 
 		if (time_outoffridge >= 1 && running)
 		{
 
 			if (time_outoffridge == 1 && running)			//Displays countdown on QT
 			{
-				std::cout << "Message 1 sent" << std::endl;
-				//system(shellScript1); // run prowl1.pl through shell script from .cpp file
+				std::cout << "Message 1 sending..." << std::endl;
+				system(shellScript1); // run prowl1.pl through shell script from .cpp file
 				message1->setStyleSheet("QLabel {background-color : red}");
 				timer1label->setStyleSheet("QLabel {background-color : yellow}");
 				running = false; //use this to stop this timer from re-triggering message 1
@@ -261,14 +265,14 @@ void Window::startCountdown()
 	}
 	else if (inVal <= fridgeTemp)
 	{
-		time_outoffridge = 70; //reset timers
-		time_atroomtemp = 85;
+		time_outoffridge = 20; //reset timers
+		time_atroomtemp = 30;
 		reading->setText("Milk OK");
 		running = false;
 		message1->setStyleSheet("QLabel {background-color : white}");
 		message2->setStyleSheet("QLabel {background-color : white}");
 		message3->setStyleSheet("QLabel {background-color : white}");
-		timer1->setHMS(0,1,10);
+		timer1->setHMS(0,0,20);
 		timer1label->setText(timer1->toString());
 		timer1label->setStyleSheet("QLabel {background-color : white}");
 	}
@@ -286,15 +290,15 @@ void Window::startCountdown()
 		{
 			if (time_atroomtemp == 10 && running2) //delay to allow temp tp settle
 			{
-				std::cout << "Message 2 sent" << std::endl;
-				//system(shellScript2); // run prowl$
+				std::cout << "Message 2 sending..." << std::endl;
+				system(shellScript2); // run prowl$
 				message2->setStyleSheet("QLabel {background-color : red}");
 				timer2label->setStyleSheet("QLabel {background-color : yellow}");
 			}
 			else if (time_atroomtemp == 1 && running2)
 			{
-				std::cout << "Message 3 sent" << std::endl;
-				//system(shellScript3); // run prowl$
+				std::cout << "Message 3 sending..." << std::endl;
+				system(shellScript3); // run prowl$
 				message3->setStyleSheet("QLabel {background-color : red}");
 				timer2label->setStyleSheet("QLabel {background-color : red}");
 				running2 = false;

@@ -31,8 +31,8 @@ public:
 	const double roomTempHigh = 28.0;
 	double Tf = 25.0; //Fridge temp. threshold plotted on QT
 	double Tr = 28.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 70; //Countdown timer default values
-	int time_atroomtemp = 85;
+    int time_outoffridge = 20; //Countdown timer default values
+	int time_atroomtemp = 30;
     bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
