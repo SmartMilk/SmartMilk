@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+##!/usr/bin/perl -w
 # ProwlScript, to communicate with the Prowl server.
 #
 # Copyright (c) 2010, Zachary West
