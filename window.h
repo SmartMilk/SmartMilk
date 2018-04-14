@@ -26,13 +26,13 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 public:
 	Window(); // class constructor
 	~Window(); //class destructor
-    const double fridgeTemp = 25.0; //temperature threshold for activating first message
-	const double roomTempLow = 27.5; //temperature threshold for activating second and third messages
-	const double roomTempHigh = 28.0;
-	double Tf = 25.0; //Fridge temp. threshold plotted on QT
-	double Tr = 28.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 20; //Countdown timer default values
-	int time_atroomtemp = 30;
+    const double fridgeTemp = 5.0; //temperature threshold for activating first message
+	const double roomTempLow = 19.5; //temperature threshold for activating second and third messages
+	const double roomTempHigh = 21.0;
+	double Tf = 5.0; //Fridge temp. threshold plotted on QT
+	double Tr = 21.0; //Room temp. threshold plotted on QT
+    int time_outoffridge = 15*60; // 15mins for countdown timer1 - message1
+	int time_atroomtemp = 2*60*60; // 2hrs countdown for timer2-message3
     bool running = false;
 	bool running2 = false;
 	bool isCelsius = true;
