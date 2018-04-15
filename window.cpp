@@ -230,14 +230,14 @@ void Window::startCountdown()
 	//-------------------------
 	// MESSAGE 1
 
-	if (inVal > fridgeTemp && inVal <= roomTempLow)
+	if (inVal > fridgeTemp && inVal <= roomTempLow) //When Milk has been left out of fridge, timer 1 initiates
 	{
 		running = true;
 		reading->setText("Milk out of Fridge");
 
-		running2 = false;
+		running2 = false; //If milk falls below room temperature (stored in fridge after 1st warning, 2nd timer is stopped
 		time_atroomtemp = 2*60*60;
-                timer2->setHMS(2,0,0);
+                timer2->setHMS(2,0,0); 
                 timer2label->setText(timer2->toString());
                 timer2label->setStyleSheet("QLabel {background-color : white}");
 		message2 -> setStyleSheet("QLabel {background-color : white}");
@@ -247,7 +247,7 @@ void Window::startCountdown()
 		if (time_outoffridge >= 1 && running)
 		{
 
-			if (time_outoffridge == 1 && running)			//Displays countdown on QT
+			if (time_outoffridge == 1 && running) //activates once timer has reached 1
 			{
 				std::cout << "Message 1 sending..." << std::endl;
 				system(shellScript1); // run prowl1.pl through shell script from .cpp file
@@ -259,11 +259,11 @@ void Window::startCountdown()
 
 		time_outoffridge--;
 		timer1->setHMS(0, timer1->addSecs (-1).minute (), timer1->addSecs (-1).second());
-		timer1label->setText(timer1->toString());
+		timer1label->setText(timer1->toString()); //updates QT timer
 
 		}
 	}
-	else if (inVal <= fridgeTemp)
+	else if (inVal <= fridgeTemp) //activates when milk is back at fridge temperature
 	{
 		// Reset timers and labels  when milk temp below fridgeTemp
 		time_outoffridge = 15*60; //reset timer1 to 15mins
@@ -296,7 +296,7 @@ void Window::startCountdown()
 				message2->setStyleSheet("QLabel {background-color : red}");
 				timer2label->setStyleSheet("QLabel {background-color : yellow}");
 			}
-			else if (time_atroomtemp == 1 && running2)
+			else if (time_atroomtemp == 1 && running2) //activates at end of second timer
 			{
 				std::cout << "Message 3 sending..." << std::endl;
 				system(shellScript3); // run prowl3.pl
@@ -306,7 +306,7 @@ void Window::startCountdown()
 			}
 		 time_atroomtemp--;
                  timer2->setHMS(timer2->addSecs(-1).hour (), timer2->addSecs (-1).minute (), timer2->addSecs (-1).second());
-                 timer2label->setText(timer2->toString());
+                 timer2label->setText(timer2->toString()); //update 2nd QT timer
 
 
 		}
