@@ -24,24 +24,24 @@ class Window : public QWidget //Derive class 'window' from the class 'Qwidget'
 	Q_OBJECT
 
 public:
-	Window(); // class constructor
-	~Window(); //class destructor
-    const double fridgeTemp = 5.0; //temperature threshold for activating first message
-	const double roomTempLow = 19.5; //temperature threshold for activating second and third messages
-	const double roomTempHigh = 21.0;
-	double Tf = 5.0; //Fridge temp. threshold plotted on QT
-	double Tr = 21.0; //Room temp. threshold plotted on QT
-    int time_outoffridge = 15*60; // 15mins for countdown timer1 - message1
-	int time_atroomtemp = 2*60*60; // 2hrs countdown for timer2-message3
-    bool running = false;
-	bool running2 = false;
-	bool isCelsius = true;
+    	Window(); // class constructor
+    	~Window(); //class destructor
+    	const double fridgeTemp = 5.0; //temperature threshold for activating first message
+    	const double roomTempLow = 19.5; //temperature threshold for activating second and third messages
+   	const double roomTempHigh = 21.0;
+    	double Tf = 5.0; //Fridge temp. threshold plotted on QT
+    	double Tr = 21.0; //Room temp. threshold plotted on QT
+    	int time_outoffridge = 15*60; // 15mins for countdown timer1 - message1
+    	int time_atroomtemp = 2*60*60; // 2hrs countdown for timer2-message3
+    	bool running = false; //boolean variables which control timer activations
+    	bool running2 = false;
+    	bool isCelsius = true; //boolean variable which controls whether plot is done in Celsius or Farenheit
 
  private slots:
-    void setCelsius();  //Set the temperatures to degrees C
-    void setFarenheit();  //Set the temperatures to degrees F
-    void plotUpdate(); //updates QT plot
-    void startCountdown(); //countdown to sending prowl messages
+    	void setCelsius();  //Set the temperatures to degrees C
+    	void setFarenheit();  //Set the temperatures to degrees F
+    	void plotUpdate(); //updates QT plot
+    	void startCountdown(); //countdown to sending prowl messages
 
 private:
 	//These functions are for creating all the components in the GUI. The components are divided by groups(Qt Groups)
@@ -71,8 +71,8 @@ private:
 	QTimer       *timerCD;
 	QTimer	     *timerP;
 	QTime        *timer1;
-	QLabel       *timer1label;
 	QTime        *timer2;
+	QLabel       *timer1label;
 	QLabel       *timer2label;
 
 	//The main Layout which will contain all the GUI elements
